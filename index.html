@@ -90,10 +90,12 @@ p{margin:0 0 10px}
 .aviso{background:rgba(224,173,47,.22);border:1.5px solid var(--trigo);border-radius:10px;padding:9px 12px;font-weight:600;font-size:14.5px;text-align:center;margin-bottom:12px;color:var(--sobre)}
 
 /* ---------- entrada ---------- */
-#entrada{position:fixed;top:0;left:0;right:0;height:100vh;height:calc(100lvh + env(safe-area-inset-bottom));z-index:50;background:#3a2a14;overflow:hidden;display:none}
+#entrada{position:fixed;inset:0;z-index:50;background:#2a1c0c;overflow:hidden;display:none}
 /* degradado suave abajo: funde la imagen y da contraste al botón */
-#entrada::after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(58,42,20,0) 0%,rgba(58,42,20,.35) 45%,rgba(40,28,12,.78) 100%)}
+#entrada::after{content:"";position:absolute;left:0;right:0;bottom:0;height:20%;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(42,28,12,0) 0%,rgba(42,28,12,.3) 40%,rgba(42,28,12,.72) 78%,#2a1c0c 100%)}
+/* el iPhone pinta la franja que queda fuera de la app con el fondo de la página: que case con cada pantalla */
+body.en-entrada{background:#2a1c0c}
 #entrada.activa{display:block}
 #entrada img.paisaje{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:42% 100%}
 .ent-texto{position:absolute;left:0;right:0;top:calc(11% + env(safe-area-inset-top));text-align:center;padding:0 10px}
@@ -101,7 +103,7 @@ p{margin:0 0 10px}
 .ent-palabra{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--tit);font-weight:600;font-size:clamp(24px,7.5vw,34px);color:#fff3cf;margin-top:10px;text-shadow:0 2px 0 #4a2413,0 0 10px rgba(40,20,8,.6)}
 .ent-palabra::before,.ent-palabra::after{content:"";width:34px;height:3px;border-radius:2px;background:#fff3cf;box-shadow:0 2px 0 #4a2413}
 /* botón de entrada: tabla de madera rota por los extremos, con cuatro clavos */
-.ent-toca{position:absolute;z-index:2;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);
+.ent-toca{position:absolute;z-index:2;left:50%;bottom:22px;transform:translateX(-50%);
   filter:drop-shadow(0 6px 3px rgba(30,15,4,.55)) drop-shadow(0 1px 1px rgba(30,15,4,.6));animation:late 1.8s ease-in-out infinite}
 .tabla{position:relative;display:grid;place-items:center;width:min(84vw,340px);height:66px;padding:0 34px;
   font-family:var(--tit);font-weight:700;font-size:27px;letter-spacing:.01em;white-space:nowrap;
@@ -160,7 +162,7 @@ p{margin:0 0 10px}
 
 /* ---------- hoja de puntuación ---------- */
 #hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-body.en-hoja{background:#7a3f1d}
+body.en-hoja{background:var(--suelo2)}
 body.en-hoja::before{content:"";position:fixed;inset:0;z-index:-1;background:#7a3f1d url(tierra.webp) center/cover no-repeat}
 :root[data-tema="noche"] body.en-hoja::before{background:linear-gradient(rgba(10,6,3,.62),rgba(10,6,3,.62)),#7a3f1d url(tierra.webp) center/cover no-repeat}
 body.en-hoja .rotulo{text-shadow:0 1px 2px rgba(40,15,3,.95),0 0 8px rgba(40,15,3,.7)}
@@ -258,7 +260,7 @@ table.desglose td.m{color:var(--neg);font-weight:700}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body class="en-entrada">
 
 <!-- ============ ENTRADA ============ -->
 <section id="entrada" class="activa" role="button" tabindex="0" aria-label="Agricola">
@@ -703,6 +705,7 @@ function clic(){ nota(880, 0, .08, .05); }
 function ir(id){
   pantalla = id; $('#tostada').classList.remove('ver');
   document.body.classList.toggle('en-hoja', id === 'hoja');
+  document.body.classList.toggle('en-entrada', id === 'entrada');
   $$('.pantalla, #entrada').forEach(p => p.classList.toggle('activa', p.id === id));
   $('#cab').classList.toggle('oculto', id === 'entrada' || id === 'hoja');
   window.scrollTo(0,0);
