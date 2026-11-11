@@ -49,8 +49,19 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--trigo);outline-
 /* ---------- pantallas ---------- */
 .pantalla{display:none;min-height:100%;max-width:520px;margin:0 auto;padding:0 14px calc(24px + env(safe-area-inset-bottom))}
 .pantalla.activa{display:block}
-.cab{display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 0}
-.cab .lado{display:flex;gap:8px}
+.cab{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;padding:calc(22px + env(safe-area-inset-top)) 14px 0}
+/* desplegables colgados de su botón (idioma y tema), como en LudoTech */
+.conMenu{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 8px);min-width:180px;padding:6px;border-radius:14px;background:var(--papel);color:var(--tinta);
+  box-shadow:0 12px 30px rgba(10,20,10,.4);transform-origin:top right;animation:abreMenu .14s ease-out}
+.menu.menuIzq{right:auto;left:0;transform-origin:top left}
+.menu[hidden]{display:none}
+@keyframes abreMenu{from{opacity:0;transform:scale(.88) translateY(-8px)}to{opacity:1;transform:none}}
+.menu button{display:flex;align-items:center;gap:11px;width:100%;padding:11px 14px 11px 11px;border-radius:9px;font-weight:600;font-size:15px;white-space:nowrap;text-align:left}
+.menu button[aria-checked="true"]{background:rgba(51,36,26,.12)}
+:root[data-tema="noche"] .menu button[aria-checked="true"]{background:rgba(239,230,192,.14)}
+.menu button:active{background:rgba(51,36,26,.22)}
+.menu svg{width:20px;height:20px;flex:none}
 .redondo{width:42px;height:42px;border-radius:50%;background:var(--papel);color:var(--tinta);display:grid;place-items:center;box-shadow:var(--sombra)}
 .redondo svg{width:22px;height:22px}
 .redondo:active{transform:translateY(2px);box-shadow:none}
@@ -66,6 +77,11 @@ p{margin:0 0 10px}
 .boton.liso{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 2px var(--linea)}
 .boton.sobre-suelo{background:transparent;color:var(--sobre);box-shadow:inset 0 0 0 2px rgba(246,241,214,.45)}
 .boton[disabled]{opacity:.45}
+.boton.madera-btn{display:flex;align-items:center;justify-content:center;gap:10px;color:#fff1d2;text-shadow:0 1px 0 rgba(50,22,6,.8);border:1.5px solid #5e3315;
+  background:repeating-linear-gradient(92deg,rgba(255,255,255,0) 0 7px,rgba(255,226,170,.09) 7px 8px,rgba(255,255,255,0) 8px 15px,rgba(60,25,5,.14) 15px 16px),linear-gradient(180deg,#b67a43 0%,#9a5f2e 55%,#82491f 100%);
+  box-shadow:inset 0 1px 0 rgba(255,220,160,.45),0 4px 0 #4a250c}
+.boton.madera-btn:active{box-shadow:inset 0 1px 0 rgba(255,220,160,.3),0 1px 0 #4a250c}
+.boton.madera-btn svg{width:22px;height:22px;flex:none}
 .fila-botones{display:grid;gap:10px}
 .aviso{background:rgba(224,173,47,.22);border:1.5px solid var(--trigo);border-radius:10px;padding:9px 12px;font-weight:600;font-size:14.5px;text-align:center;margin-bottom:12px;color:var(--sobre)}
 
@@ -224,12 +240,13 @@ table.desglose td.m{color:var(--neg);font-weight:700}
 
 <!-- ============ CABECERA ============ -->
 <header class="cab oculto" id="cab">
-  <div class="lado">
-    <button class="redondo btnIdioma" id="btnIdioma" aria-label="Idioma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
+  <div class="conMenu">
+    <button class="redondo" id="btnIdioma" type="button" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
+    <div class="menu menuIzq" id="menuIdioma" role="menu" hidden></div>
   </div>
-  <div class="lado">
-    <button class="redondo btnTema" id="btnTema" aria-label="Tema"></button>
-    <button class="redondo" id="btnArchivo" aria-label="Archivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg></button>
+  <div class="conMenu">
+    <button class="redondo" id="btnTema" type="button" aria-haspopup="true" aria-expanded="false"></button>
+    <div class="menu" id="menuTema" role="menu" hidden></div>
   </div>
 </header>
 
@@ -275,6 +292,7 @@ table.desglose td.m{color:var(--neg);font-weight:700}
     </div>
   </div>
   <button class="boton" id="btnEmpezar" data-i="empezar">Empezar partida</button>
+  <button class="boton madera-btn abreArchivo" style="margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg><span data-i="archivo">Archivo de partidas</span></button>
   <div class="pie"><button class="abreLegal"></button></div>
 </section>
 
@@ -301,6 +319,7 @@ table.desglose td.m{color:var(--neg);font-weight:700}
     <button class="boton" id="btnRevancha" data-i="revancha">Revancha</button>
     <button class="boton trigo" id="btnNueva" data-i="nuevaPartida">Nueva partida</button>
     <button class="boton sobre-suelo" id="btnVolver" data-i="volver">Volver a la hoja</button>
+    <button class="boton madera-btn abreArchivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg><span data-i="archivo">Archivo de partidas</span></button>
   </div>
 </section>
 
@@ -378,7 +397,7 @@ const ICO_LUNA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 /* ---------- textos ---------- */
 const T = {
 es:{
-  nombreIdioma:'Español', tema:'Modo día o noche', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
+  nombreIdioma:'Español', tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', tema:'Modo día o noche', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
   accesoTit:'Clave de licencia', introClave:'Escribe tu clave para usar el contador sin límite de partidas. La recibes en el correo de confirmación de la compra.',
   phClave:'Tu clave', activar:'Activar', comprar:'Comprar la clave', probar:'Probar gratis',
   pruebaPuedes:r=>`Puedes probar el contador gratis durante ${r} ${r===1?'partida':'partidas'}.`,
@@ -408,7 +427,7 @@ es:{
   app:'Contador de Agricola'
 },
 ca:{
-  nombreIdioma:'Català', tema:'Mode dia o nit', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
+  nombreIdioma:'Català', tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', tema:'Mode dia o nit', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
   accesoTit:'Clau de llicència', introClave:'Escriu la teva clau per fer servir el comptador sense límit de partides. La reps al correu de confirmació de la compra.',
   phClave:'La teva clau', activar:'Activar', comprar:'Comprar la clau', probar:'Provar gratis',
   pruebaPuedes:r=>`Pots provar el comptador gratis durant ${r} ${r===1?'partida':'partides'}.`,
@@ -438,7 +457,7 @@ ca:{
   app:'Comptador d’Agricola'
 },
 en:{
-  nombreIdioma:'English', tema:'Day or night mode', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
+  nombreIdioma:'English', tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', tema:'Day or night mode', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
   accesoTit:'Licence key', introClave:'Enter your key to use the counter with no game limit. You get it in the purchase confirmation email.',
   phClave:'Your key', activar:'Activate', comprar:'Buy the key', probar:'Try for free',
   pruebaPuedes:r=>`You can try the counter for free for ${r} ${r===1?'game':'games'}.`,
@@ -468,7 +487,7 @@ en:{
   app:'Agricola score counter'
 },
 fr:{
-  nombreIdioma:'Français', tema:'Mode jour ou nuit', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
+  nombreIdioma:'Français', tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', tema:'Mode jour ou nuit', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
   accesoTit:'Clé de licence', introClave:'Saisissez votre clé pour utiliser le compteur sans limite de parties. Vous la recevez dans l’e-mail de confirmation d’achat.',
   phClave:'Votre clé', activar:'Activer', comprar:'Acheter la clé', probar:'Essayer gratuitement',
   pruebaPuedes:r=>`Vous pouvez essayer le compteur gratuitement pendant ${r} ${r===1?'partie':'parties'}.`,
@@ -498,7 +517,7 @@ fr:{
   app:'Compteur pour Agricola'
 },
 de:{
-  nombreIdioma:'Deutsch', tema:'Tag- oder Nachtmodus', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
+  nombreIdioma:'Deutsch', tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', tema:'Tag- oder Nachtmodus', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
   accesoTit:'Lizenzschlüssel', introClave:'Gib deinen Schlüssel ein, um den Zähler ohne Partienlimit zu nutzen. Du erhältst ihn in der Bestätigungsmail zum Kauf.',
   phClave:'Dein Schlüssel', activar:'Aktivieren', comprar:'Schlüssel kaufen', probar:'Kostenlos testen',
   pruebaPuedes:r=>`Du kannst den Zähler ${r} ${r===1?'Partie':'Partien'} lang kostenlos testen.`,
@@ -528,7 +547,7 @@ de:{
   app:'Punktezähler für Agricola'
 },
 it:{
-  nombreIdioma:'Italiano', tema:'Modalità giorno o notte', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
+  nombreIdioma:'Italiano', tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', tema:'Modalità giorno o notte', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
   accesoTit:'Chiave di licenza', introClave:'Scrivi la tua chiave per usare il segnapunti senza limite di partite. La ricevi nell’e-mail di conferma dell’acquisto.',
   phClave:'La tua chiave', activar:'Attiva', comprar:'Compra la chiave', probar:'Prova gratis',
   pruebaPuedes:r=>`Puoi provare il segnapunti gratis per ${r} ${r===1?'partita':'partite'}.`,
@@ -587,21 +606,44 @@ function toast(m){ const e = $('#tostada'); e.textContent = m; e.classList.add('
 let partida = ls.get(LS.partida, null);       // {id, fecha, moor, jug:[{nombre,color,v}], act, guardada}
 let ajuste = (() => {                         // pantalla de inicio
   const u = ls.get(LS.ultimos, null);
-  const jug = (u && Array.isArray(u.jug) ? u.jug : []).filter(j => j && j.color >= 0 && j.color < 6).slice(0,6);
+  const jug = (u && Array.isArray(u.jug) ? u.jug : []).filter(j => j && j.color >= 0 && j.color < 6).slice(0,6).map(j => ({nombre:'', color:j.color}));
   while (jug.length < 2) jug.push({nombre:'', color:[0,1,2,3,4,5].find(c => !jug.some(j => j.color === c))});
   return {jug, moor: !!(u && u.moor)};
 })();
 let modoPrueba = false, pantalla = 'entrada';
 
 /* ---------- tema ---------- */
+const ICO_AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>';
+const MODOS = ['auto','dia','noche'];
+let modoTema = ls.get(LS.tema, 'auto'); if (!MODOS.includes(modoTema)) modoTema = 'auto';
+const oscuroMovil = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+const icoModo = m => m === 'auto' ? ICO_AUTO : m === 'noche' ? ICO_LUNA : ICO_SOL;
 function tema(){ return document.documentElement.dataset.tema; }
-function ponTema(x){
+function ponTema(x){     // x: 'dia' | 'noche' (lo que se ve)
   document.documentElement.dataset.tema = x;
-  $$('.btnTema').forEach(b => b.innerHTML = x === 'noche' ? ICO_SOL : ICO_LUNA);
   document.querySelector('meta[name=theme-color]').content = x === 'noche' ? '#13221a' : '#35603a';
 }
-ponTema(ls.get(LS.tema, null) || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia'));
-$$('.btnTema').forEach(b => b.onclick = () => { const x = tema() === 'noche' ? 'dia' : 'noche'; ls.set(LS.tema, x); ponTema(x); });
+function aplicaTema(){
+  ponTema(modoTema === 'auto' ? (oscuroMovil && oscuroMovil.matches ? 'noche' : 'dia') : modoTema);
+  $('#btnTema').innerHTML = icoModo(modoTema);          // el icono indica el modo elegido
+}
+function pintaMenus(){
+  $('#menuTema').innerHTML = MODOS.map(m => `<button type="button" role="menuitemradio" data-m="${m}" aria-checked="${m === modoTema}">${icoModo(m)}<span>${esc(t(m === 'auto' ? 'tAuto' : m === 'noche' ? 'tNoche' : 'tDia'))}</span></button>`).join('');
+  $('#menuIdioma').innerHTML = IDIOMAS.map(c => `<button type="button" role="menuitemradio" data-l="${c}" aria-checked="${c === idioma}"><span>${T[c].nombreIdioma}</span></button>`).join('');
+}
+const MENUS = {menuTema:'btnTema', menuIdioma:'btnIdioma'};
+function cierraMenus(){ for (const m in MENUS){ $('#'+m).hidden = true; $('#'+MENUS[m]).setAttribute('aria-expanded', false); } }
+function alternaMenu(m){ const abrir = $('#'+m).hidden; cierraMenus(); if (abrir){ $('#'+m).hidden = false; $('#'+MENUS[m]).setAttribute('aria-expanded', true); } }
+aplicaTema();
+if (oscuroMovil && oscuroMovil.addEventListener) oscuroMovil.addEventListener('change', () => { if (modoTema === 'auto') aplicaTema(); });
+$('#btnTema').addEventListener('click', e => { e.stopPropagation(); alternaMenu('menuTema'); });
+$('#btnIdioma').addEventListener('click', e => { e.stopPropagation(); alternaMenu('menuIdioma'); });
+$('#menuTema').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return;
+  modoTema = b.dataset.m; ls.set(LS.tema, modoTema); cierraMenus(); aplicaTema(); pintaMenus(); });
+$('#menuIdioma').addEventListener('click', e => { const b = e.target.closest('[data-l]'); if (!b) return;
+  idioma = b.dataset.l; ls.set(LS.idioma, idioma); cierraMenus(); aplicaIdioma(); });
+document.addEventListener('click', cierraMenus);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cierraMenus(); });
 
 /* ---------- sonido (Web Audio, sin archivos) ---------- */
 let actx;
@@ -644,9 +686,9 @@ function aplicaIdioma(){
   $$('[data-ia]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ia)));
   $$('.abreLegal').forEach(b => { b.textContent = `${t('avisoLegal')} · ${VERSION}`; });
   $('#inClave').placeholder = t('phClave');
-  $$('.btnIdioma').forEach(b => b.setAttribute('aria-label', t('idioma')));
-  $$('.btnTema').forEach(b => b.setAttribute('aria-label', t('tema')));
-  $('#btnArchivo').setAttribute('aria-label', t('archivo'));
+  $('#btnIdioma').setAttribute('aria-label', t('idioma'));
+  $('#btnTema').setAttribute('aria-label', t('tema'));
+  pintaMenus();
   if (pantalla !== 'entrada') ir(pantalla);
 }
 
@@ -718,7 +760,7 @@ function empezar(jugadores, moor){
 }
 $('#btnEmpezar').onclick = () => {
   if (partida && !partida.terminada && Date.now() - avisoCurso > 4000){ avisoCurso = Date.now(); toast(t('enCurso')); return; }
-  ls.set(LS.ultimos, {jug: ajuste.jug, moor: ajuste.moor});
+  ls.set(LS.ultimos, {jug: ajuste.jug.map(j => ({color:j.color})), moor: ajuste.moor});
   clic(); empezar(ajuste.jug, ajuste.moor);
 };
 function guarda(){ if (partida) ls.set(LS.partida, partida); else ls.del(LS.partida); }
@@ -836,7 +878,7 @@ function pintaPodio(){
 }
 $('#btnVolver').onclick = () => { partida.terminada = false; guarda(); clic(); ir('hoja'); };
 $('#btnRevancha').onclick = () => { clic(); empezar(partida.jug, partida.moor); };
-$('#btnNueva').onclick = () => { clic(); partida = null; guarda(); ir('inicio'); };
+$('#btnNueva').onclick = () => { clic(); partida = null; guarda(); ajuste.jug.forEach(j => j.nombre = ''); ir('inicio'); };
 
 /* ---------- ventanas ---------- */
 function abre(html){ $('#ventana').innerHTML = `<button class="cierra" data-cierra aria-label="${esc(t('cerrar'))}">×</button>` + html; $('#velo').classList.add('abierto'); $('#ventana').scrollTop = 0; }
@@ -846,10 +888,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') cierra(); })
 
 document.addEventListener('click', e => { if (e.target.closest('.abreLegal')) abre(`<h2>${esc(t('avisoLegal'))}</h2><p class="legal">${esc(t('legal'))}</p><p class="legal ayuda">${esc(t('app'))} · ${VERSION}</p>`); });
 
-const abreIdioma = () => abre(`<h2>${esc(t('idioma'))}</h2><div class="idiomas">${IDIOMAS.map(c => `<button data-idioma="${c}" aria-pressed="${c === idioma}">${T[c].nombreIdioma}</button>`).join('')}</div>`);
-$$('.btnIdioma').forEach(b => b.onclick = abreIdioma);
 $('#ventana').addEventListener('click', e => {
-  const b = e.target.closest('[data-idioma]'); if (b){ idioma = b.dataset.idioma; ls.set(LS.idioma, idioma); cierra(); aplicaIdioma(); return; }
   const v = e.target.closest('[data-ver]'); if (v){ const d = $(`#det-${v.dataset.ver}`); const abierto = d.classList.toggle('oculto'); v.textContent = abierto ? t('ver') : t('ocultar'); return; }
   const x = e.target.closest('[data-borra]'); if (x){ dobleToque(x, () => { ls.set(LS.hist, ls.get(LS.hist, []).filter(p => String(p.id) !== x.dataset.borra)); toast(t('borrada')); abreArchivo(); }); return; }
   const z = e.target.closest('[data-vacia]'); if (z){ dobleToque(z, () => { ls.set(LS.hist, []); toast(t('vaciado')); abreArchivo(); }); }
@@ -883,7 +922,7 @@ function abreArchivo(){
   }).join('') + `<button class="boton liso" data-vacia>${esc(t('vaciar'))}</button>` : `<p class="ayuda">${esc(t('vacio'))}</p>`;
   abre(`<h2>${esc(t('archivo'))}</h2>${cuerpo}`);
 }
-$('#btnArchivo').onclick = abreArchivo;
+$$('.abreArchivo').forEach(b => b.onclick = () => { clic(); abreArchivo(); });
 
 /* ---------- confeti ---------- */
 function confeti(){
