@@ -21,6 +21,7 @@
 @font-face{font-family:"Bitter";src:url(fonts/bitter.woff2) format("woff2");font-weight:100 900;font-display:swap}
 
 :root{
+  --arriba:calc(22px + env(safe-area-inset-top));
   --suelo:#35603a; --suelo2:#2b5030; --papel:#f2ecc9; --papel2:#e4daa9;
   --tinta:#33241a; --tinta2:#6b5540; --granero:#a3312a; --trigo:#e0ad2f;
   --linea:rgba(51,36,26,.2); --pos:#2c6a31; --neg:#a3312a; --sobre:#f6f1d6;
@@ -47,9 +48,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--trigo);outline-
 .oculto{display:none!important}
 
 /* ---------- pantallas ---------- */
-.pantalla{display:none;min-height:100%;max-width:520px;margin:0 auto;padding:0 14px calc(24px + env(safe-area-inset-bottom))}
+.pantalla{display:none;min-height:100%;max-width:520px;margin:0 auto;padding:var(--arriba) 14px calc(24px + env(safe-area-inset-bottom))}
+#hoja{padding-top:0}
+#podio{padding-top:calc(var(--arriba) + 48px)}
 .pantalla.activa{display:block}
-.cab{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;padding:calc(22px + env(safe-area-inset-top)) 14px 0}
+.cab{position:absolute;z-index:20;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;padding:calc(var(--arriba) + 4px) 14px 0;pointer-events:none}
+.cab .conMenu{pointer-events:auto}
 /* desplegables colgados de su botón (idioma y tema), como en LudoTech */
 .conMenu{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 8px);min-width:180px;padding:6px;border-radius:14px;background:var(--papel);color:var(--tinta);
@@ -65,7 +69,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--trigo);outline-
 .redondo{width:42px;height:42px;border-radius:50%;background:var(--papel);color:var(--tinta);display:grid;place-items:center;box-shadow:var(--sombra)}
 .redondo svg{width:22px;height:22px}
 .redondo:active{transform:translateY(2px);box-shadow:none}
-h1.titulo{font-family:var(--tit);font-weight:700;font-size:54px;line-height:.9;margin:6px 0 0;text-align:center;color:var(--sobre);letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,0,0,.28)}
+h1.titulo{font-family:var(--tit);font-weight:700;font-size:clamp(46px,14vw,58px);line-height:.9;margin:0;text-align:center;color:var(--sobre);letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,0,0,.28)}
 .subtitulo{font-family:var(--tit);font-weight:500;text-align:center;color:var(--trigo);font-size:22px;margin:0 0 14px}
 .hoja-papel{background:var(--papel);border-radius:14px;padding:16px;box-shadow:var(--sombra);margin-bottom:14px}
 h2{font-family:var(--tit);font-weight:600;font-size:28px;line-height:1;margin:0 0 10px}
@@ -86,15 +90,43 @@ p{margin:0 0 10px}
 .aviso{background:rgba(224,173,47,.22);border:1.5px solid var(--trigo);border-radius:10px;padding:9px 12px;font-weight:600;font-size:14.5px;text-align:center;margin-bottom:12px;color:var(--sobre)}
 
 /* ---------- entrada ---------- */
-#entrada{position:fixed;inset:0;z-index:50;background:#5b9bd8;overflow:hidden;display:none}
+#entrada{position:fixed;top:0;left:0;right:0;height:100vh;height:calc(100lvh + env(safe-area-inset-bottom));z-index:50;background:#3a2a14;overflow:hidden;display:none}
+/* degradado suave abajo: funde la imagen y da contraste al botón */
+#entrada::after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(58,42,20,0) 0%,rgba(58,42,20,.35) 45%,rgba(40,28,12,.78) 100%)}
 #entrada.activa{display:block}
 #entrada img.paisaje{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:42% 100%}
 .ent-texto{position:absolute;left:0;right:0;top:calc(11% + env(safe-area-inset-top));text-align:center;padding:0 10px}
 .ent-texto h1{font-family:var(--tit);font-weight:800;font-size:clamp(64px,23vw,118px);line-height:.85;margin:0;color:#fff3cf;text-shadow:0 4px 0 #4a2413,0 0 18px rgba(40,20,8,.45);-webkit-text-stroke:2px #4a2413;paint-order:stroke fill}
 .ent-palabra{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--tit);font-weight:600;font-size:clamp(24px,7.5vw,34px);color:#fff3cf;margin-top:10px;text-shadow:0 2px 0 #4a2413,0 0 10px rgba(40,20,8,.6)}
 .ent-palabra::before,.ent-palabra::after{content:"";width:34px;height:3px;border-radius:2px;background:#fff3cf;box-shadow:0 2px 0 #4a2413}
-.ent-toca{position:absolute;left:50%;bottom:calc(7% + env(safe-area-inset-bottom));transform:translateX(-50%);white-space:nowrap;padding:14px 26px;border-radius:999px;background:#a3312a;color:#fff5dc;font-weight:700;font-size:18px;border:2px solid #f0c95a;box-shadow:0 5px 0 rgba(60,12,8,.7),0 0 0 4px rgba(40,20,8,.25);animation:late 1.8s ease-in-out infinite}
-@keyframes late{50%{transform:translateX(-50%) scale(1.05)}}
+/* botón de entrada: tabla de madera rota por los extremos, con cuatro clavos */
+.ent-toca{position:absolute;z-index:2;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  filter:drop-shadow(0 6px 3px rgba(30,15,4,.55)) drop-shadow(0 1px 1px rgba(30,15,4,.6));animation:late 1.8s ease-in-out infinite}
+.tabla{position:relative;display:grid;place-items:center;width:min(84vw,340px);height:66px;padding:0 34px;
+  font-family:var(--tit);font-weight:700;font-size:27px;letter-spacing:.01em;white-space:nowrap;
+  color:#3a1c07;text-shadow:0 1.5px 0 rgba(255,226,170,.55),0 -1px 0 rgba(40,15,2,.35);
+  clip-path:polygon(2.6% 0,97.4% 0,99.6% 9%,97.6% 21%,100% 33%,98.2% 47%,99.4% 58%,97.2% 71%,99.8% 84%,97.8% 100%,3.2% 100%,0.4% 90%,2.6% 77%,0 64%,1.8% 52%,0.2% 39%,2.4% 26%,0.6% 13%);
+  background:
+    /* cuatro clavos: cabeza con brillo y su sombra */
+    radial-gradient(circle at 38% 34%,#f4f1ea 0,#b9b5ad 1.6px,#6c6862 4px,#2e2b27 6px,transparent 6.6px) left 15px top 9px/14px 14px no-repeat,
+    radial-gradient(circle at 38% 34%,#f4f1ea 0,#b9b5ad 1.6px,#6c6862 4px,#2e2b27 6px,transparent 6.6px) right 15px top 9px/14px 14px no-repeat,
+    radial-gradient(circle at 38% 34%,#f4f1ea 0,#b9b5ad 1.6px,#6c6862 4px,#2e2b27 6px,transparent 6.6px) left 15px bottom 9px/14px 14px no-repeat,
+    radial-gradient(circle at 38% 34%,#f4f1ea 0,#b9b5ad 1.6px,#6c6862 4px,#2e2b27 6px,transparent 6.6px) right 15px bottom 9px/14px 14px no-repeat,
+    radial-gradient(circle,rgba(40,15,2,.55) 0,rgba(40,15,2,0) 7px) left 16px top 11px/16px 16px no-repeat,
+    radial-gradient(circle,rgba(40,15,2,.55) 0,rgba(40,15,2,0) 7px) right 14px top 11px/16px 16px no-repeat,
+    radial-gradient(circle,rgba(40,15,2,.55) 0,rgba(40,15,2,0) 7px) left 16px bottom 7px/16px 16px no-repeat,
+    radial-gradient(circle,rgba(40,15,2,.55) 0,rgba(40,15,2,0) 7px) right 14px bottom 7px/16px 16px no-repeat,
+    /* nudo de la madera */
+    radial-gradient(ellipse 15px 6px at 70% 62%,rgba(70,30,8,.55),rgba(70,30,8,.2) 60%,transparent 75%),
+    radial-gradient(ellipse 26px 9px at 70% 62%,transparent 55%,rgba(70,30,8,.18) 65%,transparent 80%),
+    /* vetas a lo largo de la tabla */
+    repeating-linear-gradient(178.6deg,rgba(255,225,170,0) 0 5px,rgba(255,225,170,.16) 5px 6px,rgba(255,225,170,0) 6px 9px,rgba(80,35,8,.20) 9px 10px,rgba(255,225,170,0) 10px 13px),
+    repeating-linear-gradient(181.2deg,rgba(80,35,8,0) 0 17px,rgba(80,35,8,.16) 17px 18.5px,rgba(80,35,8,0) 18.5px 29px),
+    /* volumen: luz arriba, sombra abajo */
+    linear-gradient(180deg,#e2ae6c 0%,#cf9452 18%,#bd7f3f 55%,#a5672c 85%,#8a5220 100%);
+  box-shadow:inset 0 3px 0 rgba(255,232,190,.5),inset 0 -6px 0 rgba(70,30,6,.45),inset 0 -1px 0 rgba(40,15,2,.6)}
+@keyframes late{50%{transform:translateX(-50%) scale(1.04)}}
 
 /* ---------- acceso ---------- */
 .campo-clave{width:100%;padding:13px 12px;border-radius:10px;border:2px solid var(--linea);background:rgba(255,255,255,.35);font-size:19px;font-weight:700;text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;-webkit-user-select:text;user-select:text}
@@ -180,7 +212,7 @@ body.en-hoja .rotulo button{font-weight:700;font-size:14.5px;padding:2px 10px}
 .barra .boton{flex:1}
 
 /* ---------- podio ---------- */
-.corona{text-align:center;color:var(--sobre);margin:14px 0 14px}
+.corona{text-align:center;color:var(--sobre);margin:4px 0 14px}
 .corona h2{font-size:44px;color:var(--trigo);margin:0}
 .puesto{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px dashed var(--linea)}
 .puesto:last-of-type{border-bottom:0}
@@ -235,7 +267,7 @@ table.desglose td.m{color:var(--neg);font-weight:700}
     <h1>Agricola</h1>
     <div class="ent-palabra" data-i="splashWord">Contador</div>
   </div>
-  <div class="ent-toca" data-i="toca">Toca para empezar</div>
+  <div class="ent-toca"><span class="tabla"><span class="tabla-txt" data-i="toca">Toca para empezar</span></span></div>
 </section>
 
 <!-- ============ CABECERA ============ -->
@@ -679,6 +711,13 @@ function ir(id){
   if (id === 'hoja')   pintaHoja();
   if (id === 'podio')  pintaPodio();
 }
+/* el texto de la tabla no debe pisar los clavos: se reduce si hace falta */
+function ajustaTabla(){
+  const tx = $('.tabla-txt'), hueco = $('.tabla').clientWidth - 80;
+  let fs = 27; tx.style.fontSize = fs + 'px';
+  while (tx.scrollWidth > hueco && fs > 16){ fs -= 1; tx.style.fontSize = fs + 'px'; }
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ajustaTabla());
 function aplicaIdioma(){
   document.documentElement.lang = idioma;
   document.title = t('app');
@@ -689,6 +728,7 @@ function aplicaIdioma(){
   $('#btnIdioma').setAttribute('aria-label', t('idioma'));
   $('#btnTema').setAttribute('aria-label', t('tema'));
   pintaMenus();
+  ajustaTabla();
   if (pantalla !== 'entrada') ir(pantalla);
 }
 
