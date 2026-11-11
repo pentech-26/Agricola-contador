@@ -88,9 +88,14 @@ p{margin:0 0 10px}
 .linea-ajuste{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}
 .linea-ajuste b{font-size:17px}
 .paso-grupo{display:flex;align-items:center;gap:4px}
-.paso{width:40px;height:40px;border-radius:10px;background:var(--papel2);font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center;box-shadow:0 2px 0 var(--linea)}
-.paso:active{transform:translateY(2px);box-shadow:none}
-.paso[disabled]{opacity:.35}
+.paso{width:40px;height:40px;border-radius:10px;font-size:26px;font-weight:800;line-height:1;display:grid;place-items:center;color:#fff1d2;text-shadow:0 1px 0 rgba(50,22,6,.8);
+  background:
+    repeating-linear-gradient(92deg,rgba(255,255,255,0) 0 5px,rgba(255,226,170,.10) 5px 6px,rgba(255,255,255,0) 6px 11px,rgba(60,25,5,.16) 11px 12px),
+    radial-gradient(ellipse 9px 3px at 30% 68%,rgba(70,30,8,.45),transparent 80%),
+    linear-gradient(180deg,#b67a43 0%,#9a5f2e 55%,#82491f 100%);
+  border:1.5px solid #5e3315;box-shadow:inset 0 1px 0 rgba(255,220,160,.45),0 3px 0 #4a250c}
+.paso:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,220,160,.3),0 1px 0 #4a250c}
+.paso[disabled]{opacity:.5;filter:saturate(.55)}
 .valor{min-width:38px;text-align:center;font-weight:800;font-size:21px}
 .jug-lista{display:grid;gap:8px;margin:8px 0 4px}
 .jug-fila{display:flex;align-items:center;gap:10px}
@@ -106,16 +111,21 @@ p{margin:0 0 10px}
 
 /* ---------- hoja de puntuación ---------- */
 #hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-.pestanas{position:sticky;top:0;z-index:5;display:flex;gap:5px;padding:10px 0 8px;background:var(--suelo);margin:0 -14px;padding-left:14px;padding-right:14px}
+.hoja-cab{position:sticky;top:0;z-index:5;margin:0 -14px;padding:calc(8px + env(safe-area-inset-top)) 14px 10px;background:var(--suelo2);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.hoja-barra{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin-bottom:10px}
+.hoja-barra .lado{display:flex;gap:8px}
+.hoja-barra .redondo{width:38px;height:38px}
+.hoja-logo{font-family:var(--tit);font-weight:800;font-size:36px;line-height:1;text-align:center;color:var(--sobre);text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.pestanas{display:flex;gap:5px}
 .pestana{flex:1;min-width:0;border-radius:10px 10px 4px 4px;background:var(--papel2);padding:0 4px 6px;opacity:.72;overflow:hidden;border-top:7px solid var(--jug)}
 .pestana[aria-selected="true"]{opacity:1;background:var(--papel);box-shadow:var(--sombra)}
 .pestana span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600;padding-top:4px}
 .pestana strong{display:block;font-family:var(--tit);font-weight:700;font-size:25px;line-height:1}
-.rotulo{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--sobre);font-size:13.5px;margin:2px 0 8px}
+.rotulo{display:flex;flex-direction:column;align-items:center;gap:0;color:var(--sobre);font-size:13.5px;margin:10px 0 8px;text-align:center}
 .rotulo button{text-decoration:underline;text-underline-offset:3px;padding:6px 0}
-.rotulo .salir{display:flex;align-items:center;gap:2px;text-decoration:none;font-weight:700}
-#rotuloTxt{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
-.filas{background:var(--papel);border-radius:14px;box-shadow:var(--sombra);padding:2px 12px}
+#rotuloTxt{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+#rotuloTxt:empty{display:none}
+.filas{background:var(--papel);border-radius:14px;box-shadow:var(--sombra),0 0 0 1px rgba(0,0,0,.25);padding:2px 10px;border:5px solid var(--jug);transition:border-color .25s}
 .fila{display:grid;grid-template-columns:44px minmax(0,1fr) auto 42px;align-items:center;gap:8px;padding:9px 0;border-bottom:1.5px dashed var(--linea)}
 .fila:last-child{border-bottom:0}
 .fila .ico{grid-row:span 2;align-self:center;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
@@ -138,8 +148,6 @@ p{margin:0 0 10px}
 .segmento button[aria-pressed="true"]{background:var(--tinta);color:var(--papel)}
 .barra{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--suelo2);padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -3px 0 rgba(0,0,0,.25)}
 .barra div{max-width:492px;margin:0 auto;display:flex;align-items:center;gap:14px}
-.barra .tot{color:var(--sobre);font-size:13px;line-height:1.1;white-space:nowrap}
-.barra .tot strong{display:block;font-family:var(--tit);font-size:38px;line-height:.95;color:var(--trigo)}
 .barra .boton{flex:1}
 
 /* ---------- podio ---------- */
@@ -200,10 +208,10 @@ table.desglose td.m{color:var(--neg);font-weight:700}
 <!-- ============ CABECERA ============ -->
 <header class="cab oculto" id="cab">
   <div class="lado">
-    <button class="redondo" id="btnIdioma" aria-label="Idioma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
+    <button class="redondo btnIdioma" id="btnIdioma" aria-label="Idioma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
   </div>
   <div class="lado">
-    <button class="redondo" id="btnTema" aria-label="Tema"></button>
+    <button class="redondo btnTema" id="btnTema" aria-label="Tema"></button>
     <button class="redondo" id="btnArchivo" aria-label="Archivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg></button>
   </div>
 </header>
@@ -255,13 +263,17 @@ table.desglose td.m{color:var(--neg);font-weight:700}
 
 <!-- ============ HOJA ============ -->
 <section class="pantalla" id="hoja">
-  <div class="pestanas" id="pestanas" role="tablist"></div>
-  <div class="rotulo"><button id="btnSalir" class="salir" data-ia="inicioLbl"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5l-7 7 7 7"/></svg><span data-i="inicioLbl">Inicio</span></button><span id="rotuloTxt"></span><button id="btnTabla" data-i="tabla">Tabla de puntos</button></div>
+  <div class="hoja-cab">
+    <div class="hoja-barra">
+      <button class="redondo" id="btnSalir" data-ia="inicioLbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="hoja-logo">Agricola</span>
+      <div class="lado"><button class="redondo btnIdioma" data-ia="idioma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button><button class="redondo btnTema" data-ia="tema"></button></div>
+    </div>
+    <div class="pestanas" id="pestanas" role="tablist"></div>
+  </div>
+  <div class="rotulo"><span id="rotuloTxt"></span><button id="btnTabla" data-i="tabla">Tabla de puntos</button></div>
   <div class="filas" id="filas"></div>
-  <div class="barra"><div>
-    <span class="tot"><span data-i="total">Total</span><strong id="totalAct">0</strong></span>
-    <button class="boton" id="btnTerminar" data-i="terminar">Terminar partida</button>
-  </div></div>
+  <div class="barra"><div><button class="boton" id="btnTerminar" data-i="terminar">Terminar partida</button></div></div>
 </section>
 
 <!-- ============ PODIO ============ -->
@@ -350,7 +362,7 @@ const ICO_LUNA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 /* ---------- textos ---------- */
 const T = {
 es:{
-  nombreIdioma:'Español', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
+  nombreIdioma:'Español', tema:'Modo día o noche', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
   accesoTit:'Clave de licencia', introClave:'Escribe tu clave para usar el contador sin límite de partidas. La recibes en el correo de confirmación de la compra.',
   phClave:'Tu clave', activar:'Activar', comprar:'Comprar la clave', probar:'Probar gratis',
   pruebaPuedes:r=>`Puedes probar el contador gratis durante ${r} ${r===1?'partida':'partidas'}.`,
@@ -380,7 +392,7 @@ es:{
   app:'Contador de Agricola'
 },
 ca:{
-  nombreIdioma:'Català', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
+  nombreIdioma:'Català', tema:'Mode dia o nit', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
   accesoTit:'Clau de llicència', introClave:'Escriu la teva clau per fer servir el comptador sense límit de partides. La reps al correu de confirmació de la compra.',
   phClave:'La teva clau', activar:'Activar', comprar:'Comprar la clau', probar:'Provar gratis',
   pruebaPuedes:r=>`Pots provar el comptador gratis durant ${r} ${r===1?'partida':'partides'}.`,
@@ -410,7 +422,7 @@ ca:{
   app:'Comptador d’Agricola'
 },
 en:{
-  nombreIdioma:'English', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
+  nombreIdioma:'English', tema:'Day or night mode', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
   accesoTit:'Licence key', introClave:'Enter your key to use the counter with no game limit. You get it in the purchase confirmation email.',
   phClave:'Your key', activar:'Activate', comprar:'Buy the key', probar:'Try for free',
   pruebaPuedes:r=>`You can try the counter for free for ${r} ${r===1?'game':'games'}.`,
@@ -440,7 +452,7 @@ en:{
   app:'Agricola score counter'
 },
 fr:{
-  nombreIdioma:'Français', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
+  nombreIdioma:'Français', tema:'Mode jour ou nuit', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
   accesoTit:'Clé de licence', introClave:'Saisissez votre clé pour utiliser le compteur sans limite de parties. Vous la recevez dans l’e-mail de confirmation d’achat.',
   phClave:'Votre clé', activar:'Activer', comprar:'Acheter la clé', probar:'Essayer gratuitement',
   pruebaPuedes:r=>`Vous pouvez essayer le compteur gratuitement pendant ${r} ${r===1?'partie':'parties'}.`,
@@ -470,7 +482,7 @@ fr:{
   app:'Compteur pour Agricola'
 },
 de:{
-  nombreIdioma:'Deutsch', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
+  nombreIdioma:'Deutsch', tema:'Tag- oder Nachtmodus', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
   accesoTit:'Lizenzschlüssel', introClave:'Gib deinen Schlüssel ein, um den Zähler ohne Partienlimit zu nutzen. Du erhältst ihn in der Bestätigungsmail zum Kauf.',
   phClave:'Dein Schlüssel', activar:'Aktivieren', comprar:'Schlüssel kaufen', probar:'Kostenlos testen',
   pruebaPuedes:r=>`Du kannst den Zähler ${r} ${r===1?'Partie':'Partien'} lang kostenlos testen.`,
@@ -500,7 +512,7 @@ de:{
   app:'Punktezähler für Agricola'
 },
 it:{
-  nombreIdioma:'Italiano', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
+  nombreIdioma:'Italiano', tema:'Modalità giorno o notte', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
   accesoTit:'Chiave di licenza', introClave:'Scrivi la tua chiave per usare il segnapunti senza limite di partite. La ricevi nell’e-mail di conferma dell’acquisto.',
   phClave:'La tua chiave', activar:'Attiva', comprar:'Compra la chiave', probar:'Prova gratis',
   pruebaPuedes:r=>`Puoi provare il segnapunti gratis per ${r} ${r===1?'partita':'partite'}.`,
@@ -569,11 +581,11 @@ let modoPrueba = false, pantalla = 'entrada';
 function tema(){ return document.documentElement.dataset.tema; }
 function ponTema(x){
   document.documentElement.dataset.tema = x;
-  $('#btnTema').innerHTML = x === 'noche' ? ICO_SOL : ICO_LUNA;
+  $$('.btnTema').forEach(b => b.innerHTML = x === 'noche' ? ICO_SOL : ICO_LUNA);
   document.querySelector('meta[name=theme-color]').content = x === 'noche' ? '#13221a' : '#35603a';
 }
 ponTema(ls.get(LS.tema, null) || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia'));
-$('#btnTema').onclick = () => { const x = tema() === 'noche' ? 'dia' : 'noche'; ls.set(LS.tema, x); ponTema(x); };
+$$('.btnTema').forEach(b => b.onclick = () => { const x = tema() === 'noche' ? 'dia' : 'noche'; ls.set(LS.tema, x); ponTema(x); });
 
 /* ---------- sonido (Web Audio, sin archivos) ---------- */
 let actx;
@@ -615,7 +627,8 @@ function aplicaIdioma(){
   $$('[data-ia]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ia)));
   $$('.abreLegal').forEach(b => { b.textContent = `${t('avisoLegal')} · ${VERSION}`; });
   $('#inClave').placeholder = t('phClave');
-  $('#btnIdioma').setAttribute('aria-label', t('idioma'));
+  $$('.btnIdioma').forEach(b => b.setAttribute('aria-label', t('idioma')));
+  $$('.btnTema').forEach(b => b.setAttribute('aria-label', t('tema')));
   $('#btnArchivo').setAttribute('aria-label', t('archivo'));
   if (pantalla !== 'entrada') ir(pantalla);
 }
@@ -703,9 +716,8 @@ function pintaHoja(){
   const P = partida;
   $('#pestanas').innerHTML = P.jug.map((j,i) =>
     `<button class="pestana" role="tab" data-j="${i}" aria-selected="${i === P.act}" style="--jug:${COLORES[j.color]}"><span>${esc(nomJug(j))}</span><strong>${num(total(j.v, P.moor))}</strong></button>`).join('');
-  $('#pestanas').classList.toggle('oculto', P.jug.length < 2);
   const j = P.jug[P.act];
-  $('#rotuloTxt').textContent = [P.jug.length === 1 ? nomJug(j) : '', P.moor ? t('moor') : ''].filter(Boolean).join(' · ');
+  $('#rotuloTxt').textContent = P.moor ? t('moor') : '';
   $('#filas').style.setProperty('--jug', COLORES[j.color]);
   $('#filas').innerHTML = filasActivas(P.moor).map(f => {
     let bajo;
@@ -734,7 +746,6 @@ function refresca(id){
 function refrescaTotales(){
   const P = partida;
   P.jug.forEach((j,i) => { const b = $(`.pestana[data-j="${i}"] strong`); if (b) b.textContent = num(total(j.v, P.moor)); });
-  $('#totalAct').textContent = num(total(P.jug[P.act].v, P.moor));
 }
 function cambia(id, d){
   const P = partida, v = P.jug[P.act].v, f = FILAS.find(x => x.id === id), {min, max} = limites(f, v);
@@ -813,7 +824,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') cierra(); })
 
 document.addEventListener('click', e => { if (e.target.closest('.abreLegal')) abre(`<h2>${esc(t('avisoLegal'))}</h2><p class="legal">${esc(t('legal'))}</p><p class="legal ayuda">${esc(t('app'))} · ${VERSION}</p>`); });
 
-$('#btnIdioma').onclick = () => abre(`<h2>${esc(t('idioma'))}</h2><div class="idiomas">${IDIOMAS.map(c => `<button data-idioma="${c}" aria-pressed="${c === idioma}">${T[c].nombreIdioma}</button>`).join('')}</div>`);
+const abreIdioma = () => abre(`<h2>${esc(t('idioma'))}</h2><div class="idiomas">${IDIOMAS.map(c => `<button data-idioma="${c}" aria-pressed="${c === idioma}">${T[c].nombreIdioma}</button>`).join('')}</div>`);
+$$('.btnIdioma').forEach(b => b.onclick = abreIdioma);
 $('#ventana').addEventListener('click', e => {
   const b = e.target.closest('[data-idioma]'); if (b){ idioma = b.dataset.idioma; ls.set(LS.idioma, idioma); cierra(); aplicaIdioma(); return; }
   const v = e.target.closest('[data-ver]'); if (v){ const d = $(`#det-${v.dataset.ver}`); const abierto = d.classList.toggle('oculto'); v.textContent = abierto ? t('ver') : t('ocultar'); return; }
