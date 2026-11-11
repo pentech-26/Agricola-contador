@@ -14,6 +14,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="splash.webp" as="image">
+<link rel="prefetch" href="tierra.webp" as="image">
 <link rel="preload" href="fonts/grenze-gotisch.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 @font-face{font-family:"Grenze Gotisch";src:url(fonts/grenze-gotisch.woff2) format("woff2");font-weight:100 900;font-display:swap}
@@ -111,31 +112,38 @@ p{margin:0 0 10px}
 
 /* ---------- hoja de puntuación ---------- */
 #hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-.hoja-cab{position:sticky;top:0;z-index:5;margin:0 -14px;padding:calc(8px + env(safe-area-inset-top)) 14px 10px;background:var(--suelo2);box-shadow:0 3px 0 rgba(0,0,0,.25)}
-.hoja-barra{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin-bottom:10px}
+body.en-hoja{background:#7a3f1d}
+body.en-hoja::before{content:"";position:fixed;inset:0;z-index:-1;background:#7a3f1d url(tierra.webp) center/cover no-repeat}
+:root[data-tema="noche"] body.en-hoja::before{background:linear-gradient(rgba(10,6,3,.62),rgba(10,6,3,.62)),#7a3f1d url(tierra.webp) center/cover no-repeat}
+body.en-hoja .rotulo{text-shadow:0 1px 2px rgba(40,15,3,.95),0 0 8px rgba(40,15,3,.7)}
+body.en-hoja .rotulo button{font-weight:700;font-size:14.5px;padding:2px 10px}
+.hoja-cab{position:sticky;top:0;z-index:5;margin:0 -14px;padding:calc(22px + env(safe-area-inset-top)) 14px 10px;background:var(--suelo2);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.hoja-barra{display:grid;grid-template-columns:76px 1fr 76px;align-items:center;gap:4px;margin-bottom:12px}
+.hoja-barra #btnSalir{justify-self:start}
+.hoja-exp{justify-self:end;text-align:right;font-size:11.5px;line-height:1.15;font-weight:600;color:var(--trigo);overflow-wrap:break-word;hyphens:auto}
 .hoja-barra .lado{display:flex;gap:8px}
-.hoja-barra .redondo{width:38px;height:38px}
-.hoja-logo{font-family:var(--tit);font-weight:800;font-size:36px;line-height:1;text-align:center;color:var(--sobre);text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.hoja-barra .redondo{width:42px;height:42px}
+.hoja-logo{font-family:var(--tit);font-weight:800;font-size:clamp(46px,14vw,58px);line-height:.9;text-align:center;color:var(--sobre);text-shadow:0 2px 0 rgba(0,0,0,.35)}
 .pestanas{display:flex;gap:5px}
 .pestana{flex:1;min-width:0;border-radius:10px 10px 4px 4px;background:var(--papel2);padding:0 4px 6px;opacity:.72;overflow:hidden;border-top:7px solid var(--jug)}
 .pestana[aria-selected="true"]{opacity:1;background:var(--papel);box-shadow:var(--sombra)}
 .pestana span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600;padding-top:4px}
 .pestana strong{display:block;font-family:var(--tit);font-weight:700;font-size:25px;line-height:1}
-.rotulo{display:flex;flex-direction:column;align-items:center;gap:0;color:var(--sobre);font-size:13.5px;margin:10px 0 8px;text-align:center}
+.rotulo{display:flex;justify-content:center;color:var(--sobre);font-size:13.5px;margin:7px 0 6px;text-align:center}
 .rotulo button{text-decoration:underline;text-underline-offset:3px;padding:6px 0}
-#rotuloTxt{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
-#rotuloTxt:empty{display:none}
+
 .filas{background:var(--papel);border-radius:14px;box-shadow:var(--sombra),0 0 0 1px rgba(0,0,0,.25);padding:2px 10px;border:5px solid var(--jug);transition:border-color .25s}
-.fila{display:grid;grid-template-columns:44px minmax(0,1fr) auto 42px;align-items:center;gap:8px;padding:9px 0;border-bottom:1.5px dashed var(--linea)}
+.fila{display:grid;grid-template-columns:62px minmax(0,1fr) auto 42px;align-items:center;gap:8px;padding:9px 0;border-bottom:1.5px dashed var(--linea)}
 .fila:last-child{border-bottom:0}
-.fila .ico{grid-row:span 2;align-self:center;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.fila .ico{grid-row:span 2;align-self:center;width:62px;height:62px;cursor:zoom-in;transition:transform .15s;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
 .fila .nom{font-weight:700;font-size:15.5px;line-height:1.15}
 .fila .regla{color:var(--tinta2);font-size:12px;line-height:1.2;margin-top:2px}
 .tramos{display:flex;gap:3px}
 .fila.ancha{row-gap:5px}
 .fila .bajo{grid-column:2 / 5}
 .fila:not(.ancha) .ico{grid-row:auto}
-@media (max-width:380px){.fila{grid-template-columns:38px minmax(0,1fr) auto 38px;gap:6px}.fila .ico{width:38px;height:38px}.fila .paso{width:34px}.disco{width:38px;height:38px;font-size:21px}}
+.fila .ico:active{transform:scale(1.12)}
+@media (max-width:380px){.fila{grid-template-columns:52px minmax(0,1fr) auto 38px;gap:6px}.fila .ico{width:52px;height:52px}.fila .paso{width:34px}.disco{width:38px;height:38px;font-size:21px}}
 .tramos i{flex:1;font-style:normal;text-align:center;font-size:10.5px;font-weight:600;padding:2px 0;border-radius:4px;background:var(--papel2);color:var(--tinta2);white-space:nowrap}
 .tramos i.on{background:var(--tinta);color:var(--papel)}
 .fila .paso{width:36px;height:38px}
@@ -174,6 +182,10 @@ table.desglose td.m{color:var(--neg);font-weight:700}
 .ventana{width:100%;max-width:520px;max-height:88%;overflow:auto;background:var(--papel);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:sube .22s ease-out}
 @keyframes sube{from{transform:translateY(30px);opacity:0}}
 .ventana .cierra{float:right;width:38px;height:38px;border-radius:50%;background:var(--papel2);font-size:22px;line-height:1}
+.ventana.zoom{text-align:center}
+.zoom-img{display:block;width:min(78vw,340px);height:min(78vw,340px);object-fit:contain;margin:6px auto 4px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));animation:crece .25s ease-out}
+@keyframes crece{from{transform:scale(.6);opacity:0}}
+.zoom-nom{font-family:var(--tit);font-weight:700;font-size:34px;line-height:1;margin:6px 0}
 .ventana .legal{font-size:14.5px;-webkit-user-select:text;user-select:text}
 .idiomas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .idiomas button{padding:13px;border-radius:10px;background:var(--papel2);font-weight:700}
@@ -267,11 +279,11 @@ table.desglose td.m{color:var(--neg);font-weight:700}
     <div class="hoja-barra">
       <button class="redondo" id="btnSalir" data-ia="inicioLbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <span class="hoja-logo">Agricola</span>
-      <div class="lado"><button class="redondo btnIdioma" data-ia="idioma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button><button class="redondo btnTema" data-ia="tema"></button></div>
+      <span class="hoja-exp" id="hojaExp"></span>
     </div>
     <div class="pestanas" id="pestanas" role="tablist"></div>
   </div>
-  <div class="rotulo"><span id="rotuloTxt"></span><button id="btnTabla" data-i="tabla">Tabla de puntos</button></div>
+  <div class="rotulo"><button id="btnTabla" data-i="tabla">Tabla de puntos</button></div>
   <div class="filas" id="filas"></div>
   <div class="barra"><div><button class="boton" id="btnTerminar" data-i="terminar">Terminar partida</button></div></div>
 </section>
@@ -355,7 +367,7 @@ function total(v, moor){ return filasActivas(moor).reduce((s,f) => s + puntos(f.
 const COLORES = ['#b5352c','#2f62a8','#3c8a4a','#7a4a9c','#e7d3a6','#f0c419'];
 
 /* ---------- iconos de las filas (ilustraciones de Davito, carpeta iconos/) ---------- */
-const ICO = new Proxy({}, {get:(_, id) => `<img class="ico" src="iconos/${id}.webp" alt="" width="44" height="44" draggable="false">`});
+const ICO = new Proxy({}, {get:(_, id) => `<img class="ico" src="iconos/${id}.webp" alt="" width="62" height="62" draggable="false" data-zoom="${id}">`});
 const ICO_SOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
 const ICO_LUNA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></svg>';
 
@@ -612,6 +624,7 @@ function clic(){ nota(880, 0, .08, .05); }
 /* ---------- navegación ---------- */
 function ir(id){
   pantalla = id; $('#tostada').classList.remove('ver');
+  document.body.classList.toggle('en-hoja', id === 'hoja');
   $$('.pantalla, #entrada').forEach(p => p.classList.toggle('activa', p.id === id));
   $('#cab').classList.toggle('oculto', id === 'entrada' || id === 'hoja');
   window.scrollTo(0,0);
@@ -717,7 +730,7 @@ function pintaHoja(){
   $('#pestanas').innerHTML = P.jug.map((j,i) =>
     `<button class="pestana" role="tab" data-j="${i}" aria-selected="${i === P.act}" style="--jug:${COLORES[j.color]}"><span>${esc(nomJug(j))}</span><strong>${num(total(j.v, P.moor))}</strong></button>`).join('');
   const j = P.jug[P.act];
-  $('#rotuloTxt').textContent = P.moor ? t('moor') : '';
+  $('#hojaExp').textContent = P.moor ? t('moor') : '';
   $('#filas').style.setProperty('--jug', COLORES[j.color]);
   $('#filas').innerHTML = filasActivas(P.moor).map(f => {
     let bajo;
@@ -770,6 +783,11 @@ $('#filas').addEventListener('keydown', e => {   // teclado
   const b = e.target.closest('.paso'); if (b && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); cambia(b.closest('.fila').dataset.f, +b.dataset.d); }
 });
 $('#filas').addEventListener('click', e => {
+  const z = e.target.closest('[data-zoom]');
+  if (z){ const id = z.dataset.zoom, f = FILAS.find(x => x.id === id);
+    const regla = f.th ? etiquetasTramo(f.th).map((e,k) => `${e} → ${['−1','1','2','3','4'][k]}`).join(' · ') : t(f.casa ? 'rCasa' : f.r);
+    abre(`<img class="zoom-img" src="iconos/grande/${id}.webp" alt=""><div class="zoom-nom">${esc(nomFila(id))}</div><p class="ayuda">${esc(regla)}</p>`);
+    $('#ventana').classList.add('zoom'); return; }
   const m = e.target.closest('[data-mat]'); if (!m) return;
   partida.jug[partida.act].v.mat = +m.dataset.mat; clic(); refresca('hab'); refrescaTotales(); guarda();
 });
@@ -818,7 +836,7 @@ $('#btnNueva').onclick = () => { clic(); partida = null; guarda(); ir('inicio');
 
 /* ---------- ventanas ---------- */
 function abre(html){ $('#ventana').innerHTML = `<button class="cierra" data-cierra aria-label="${esc(t('cerrar'))}">×</button>` + html; $('#velo').classList.add('abierto'); $('#ventana').scrollTop = 0; }
-function cierra(){ $('#velo').classList.remove('abierto'); }
+function cierra(){ $('#velo').classList.remove('abierto'); $('#ventana').classList.remove('zoom'); }
 $('#velo').addEventListener('click', e => { if (e.target.id === 'velo' || e.target.closest('[data-cierra]')) cierra(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cierra(); });
 
