@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Contador de Agricola</title>
+<meta name="description" content="Contador de puntuación para Agricola. Herramienta no oficial de PenTech.">
+<meta name="theme-color" content="#35603a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agricola">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="splash.webp" as="image">
+<link rel="preload" href="fonts/grenze-gotisch.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:"Grenze Gotisch";src:url(fonts/grenze-gotisch.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Bitter";src:url(fonts/bitter.woff2) format("woff2");font-weight:100 900;font-display:swap}
+
+:root{
+  --suelo:#35603a; --suelo2:#2b5030; --papel:#f2ecc9; --papel2:#e4daa9;
+  --tinta:#33241a; --tinta2:#6b5540; --granero:#a3312a; --trigo:#e0ad2f;
+  --linea:rgba(51,36,26,.2); --pos:#2c6a31; --neg:#a3312a; --sobre:#f6f1d6;
+  --sombra:0 3px 0 rgba(20,30,15,.35);
+  --tit:"Grenze Gotisch","Bitter",Georgia,serif; --txt:"Bitter",Georgia,serif;
+}
+:root[data-tema="noche"]{
+  --suelo:#13221a; --suelo2:#0e1a14; --papel:#1f3329; --papel2:#2a4334;
+  --tinta:#efe6c0; --tinta2:#b5ae8c; --granero:#c9483a; --trigo:#f0b64a;
+  --linea:rgba(239,230,192,.18); --pos:#93d48d; --neg:#ff9382; --sobre:#efe6c0;
+  --sombra:0 3px 0 rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  font-family:var(--txt);color:var(--tinta);font-size:16px;line-height:1.35;
+  background:var(--suelo) repeating-linear-gradient(100deg,transparent 0 22px,rgba(0,0,0,.07) 22px 26px);
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  overscroll-behavior:none;font-variant-numeric:lining-nums tabular-nums;
+}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;touch-action:manipulation}
+input{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--trigo);outline-offset:2px}
+.oculto{display:none!important}
+
+/* ---------- pantallas ---------- */
+.pantalla{display:none;min-height:100%;max-width:520px;margin:0 auto;padding:0 14px calc(24px + env(safe-area-inset-bottom))}
+.pantalla.activa{display:block}
+.cab{display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 14px 0}
+.cab .lado{display:flex;gap:8px}
+.redondo{width:42px;height:42px;border-radius:50%;background:var(--papel);color:var(--tinta);display:grid;place-items:center;box-shadow:var(--sombra)}
+.redondo svg{width:22px;height:22px}
+.redondo:active{transform:translateY(2px);box-shadow:none}
+h1.titulo{font-family:var(--tit);font-weight:700;font-size:54px;line-height:.9;margin:6px 0 0;text-align:center;color:var(--sobre);letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,0,0,.28)}
+.subtitulo{font-family:var(--tit);font-weight:500;text-align:center;color:var(--trigo);font-size:22px;margin:0 0 14px}
+.hoja-papel{background:var(--papel);border-radius:14px;padding:16px;box-shadow:var(--sombra);margin-bottom:14px}
+h2{font-family:var(--tit);font-weight:600;font-size:28px;line-height:1;margin:0 0 10px}
+p{margin:0 0 10px}
+.ayuda{color:var(--tinta2);font-size:14.5px}
+.boton{display:block;width:100%;padding:14px 16px;border-radius:12px;font-weight:700;font-size:17px;text-align:center;background:var(--granero);color:#fff5dc;box-shadow:0 4px 0 rgba(60,12,8,.55)}
+.boton:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(60,12,8,.55)}
+.boton.trigo{background:var(--trigo);color:#33241a;box-shadow:0 4px 0 rgba(110,78,8,.6)}
+.boton.liso{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 2px var(--linea)}
+.boton.sobre-suelo{background:transparent;color:var(--sobre);box-shadow:inset 0 0 0 2px rgba(246,241,214,.45)}
+.boton[disabled]{opacity:.45}
+.fila-botones{display:grid;gap:10px}
+.aviso{background:rgba(224,173,47,.22);border:1.5px solid var(--trigo);border-radius:10px;padding:9px 12px;font-weight:600;font-size:14.5px;text-align:center;margin-bottom:12px;color:var(--sobre)}
+
+/* ---------- entrada ---------- */
+#entrada{position:fixed;inset:0;z-index:50;background:#5b9bd8;overflow:hidden;display:none}
+#entrada.activa{display:block}
+#entrada img.paisaje{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:42% 100%}
+.ent-texto{position:absolute;left:0;right:0;top:calc(11% + env(safe-area-inset-top));text-align:center;padding:0 10px}
+.ent-texto h1{font-family:var(--tit);font-weight:800;font-size:clamp(64px,23vw,118px);line-height:.85;margin:0;color:#fff3cf;text-shadow:0 4px 0 #4a2413,0 0 18px rgba(40,20,8,.45);-webkit-text-stroke:2px #4a2413;paint-order:stroke fill}
+.ent-palabra{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--tit);font-weight:600;font-size:clamp(24px,7.5vw,34px);color:#fff3cf;margin-top:10px;text-shadow:0 2px 0 #4a2413,0 0 10px rgba(40,20,8,.6)}
+.ent-palabra::before,.ent-palabra::after{content:"";width:34px;height:3px;border-radius:2px;background:#fff3cf;box-shadow:0 2px 0 #4a2413}
+.ent-toca{position:absolute;left:50%;bottom:calc(7% + env(safe-area-inset-bottom));transform:translateX(-50%);white-space:nowrap;padding:14px 26px;border-radius:999px;background:#a3312a;color:#fff5dc;font-weight:700;font-size:18px;border:2px solid #f0c95a;box-shadow:0 5px 0 rgba(60,12,8,.7),0 0 0 4px rgba(40,20,8,.25);animation:late 1.8s ease-in-out infinite}
+@keyframes late{50%{transform:translateX(-50%) scale(1.05)}}
+
+/* ---------- acceso ---------- */
+.campo-clave{width:100%;padding:13px 12px;border-radius:10px;border:2px solid var(--linea);background:rgba(255,255,255,.35);font-size:19px;font-weight:700;text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;-webkit-user-select:text;user-select:text}
+:root[data-tema="noche"] .campo-clave{background:rgba(0,0,0,.25)}
+.campo-clave::placeholder{letter-spacing:0;text-transform:none;font-weight:500;color:var(--tinta2);opacity:.8}
+
+/* ---------- inicio ---------- */
+.linea-ajuste{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}
+.linea-ajuste b{font-size:17px}
+.paso-grupo{display:flex;align-items:center;gap:4px}
+.paso{width:40px;height:40px;border-radius:10px;background:var(--papel2);font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center;box-shadow:0 2px 0 var(--linea)}
+.paso:active{transform:translateY(2px);box-shadow:none}
+.paso[disabled]{opacity:.35}
+.valor{min-width:38px;text-align:center;font-weight:800;font-size:21px}
+.jug-lista{display:grid;gap:8px;margin:8px 0 4px}
+.jug-fila{display:flex;align-items:center;gap:10px}
+.ficha{width:38px;height:38px;border-radius:50%;flex:none;border:3px solid rgba(0,0,0,.28);box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
+.jug-fila input{flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:2px solid var(--linea);background:rgba(255,255,255,.35);font-size:17px;font-weight:600;-webkit-user-select:text;user-select:text}
+:root[data-tema="noche"] .jug-fila input{background:rgba(0,0,0,.25)}
+.interruptor{position:relative;width:56px;height:32px;border-radius:999px;background:var(--papel2);box-shadow:inset 0 0 0 2px var(--linea);flex:none;transition:background .2s}
+.interruptor::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:var(--tinta2);transition:transform .2s}
+.interruptor[aria-checked="true"]{background:var(--pos)}
+.interruptor[aria-checked="true"]::after{transform:translateX(24px);background:#fff5dc}
+.pie{text-align:center;margin-top:18px}
+.pie button{color:var(--sobre);opacity:.85;font-size:13.5px;text-decoration:underline;text-underline-offset:3px;padding:8px}
+
+/* ---------- hoja de puntuación ---------- */
+#hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.pestanas{position:sticky;top:0;z-index:5;display:flex;gap:5px;padding:10px 0 8px;background:var(--suelo);margin:0 -14px;padding-left:14px;padding-right:14px}
+.pestana{flex:1;min-width:0;border-radius:10px 10px 4px 4px;background:var(--papel2);padding:0 4px 6px;opacity:.72;overflow:hidden;border-top:7px solid var(--jug)}
+.pestana[aria-selected="true"]{opacity:1;background:var(--papel);box-shadow:var(--sombra)}
+.pestana span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600;padding-top:4px}
+.pestana strong{display:block;font-family:var(--tit);font-weight:700;font-size:25px;line-height:1}
+.rotulo{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--sobre);font-size:13.5px;margin:2px 0 8px}
+.rotulo button{text-decoration:underline;text-underline-offset:3px;padding:6px 0}
+.rotulo .salir{display:flex;align-items:center;gap:2px;text-decoration:none;font-weight:700}
+#rotuloTxt{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.filas{background:var(--papel);border-radius:14px;box-shadow:var(--sombra);padding:2px 12px}
+.fila{display:grid;grid-template-columns:44px minmax(0,1fr) auto 42px;align-items:center;gap:8px;padding:9px 0;border-bottom:1.5px dashed var(--linea)}
+.fila:last-child{border-bottom:0}
+.fila .ico{grid-row:span 2;align-self:center;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.fila .nom{font-weight:700;font-size:15.5px;line-height:1.15}
+.fila .regla{color:var(--tinta2);font-size:12px;line-height:1.2;margin-top:2px}
+.tramos{display:flex;gap:3px}
+.fila.ancha{row-gap:5px}
+.fila .bajo{grid-column:2 / 5}
+.fila:not(.ancha) .ico{grid-row:auto}
+@media (max-width:380px){.fila{grid-template-columns:38px minmax(0,1fr) auto 38px;gap:6px}.fila .ico{width:38px;height:38px}.fila .paso{width:34px}.disco{width:38px;height:38px;font-size:21px}}
+.tramos i{flex:1;font-style:normal;text-align:center;font-size:10.5px;font-weight:600;padding:2px 0;border-radius:4px;background:var(--papel2);color:var(--tinta2);white-space:nowrap}
+.tramos i.on{background:var(--tinta);color:var(--papel)}
+.fila .paso{width:36px;height:38px}
+.fila .valor{min-width:30px;font-size:20px}
+.disco{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-family:var(--tit);font-weight:700;font-size:23px;background:var(--trigo);color:#33241a;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2)}
+.disco.neg{background:var(--granero);color:#fff5dc}
+.disco.cero{background:var(--papel2);color:var(--tinta2)}
+.segmento{display:flex;gap:3px}
+.segmento button{flex:1;font-size:11.5px;font-weight:700;padding:5px 2px;border-radius:5px;background:var(--papel2);color:var(--tinta2)}
+.segmento button[aria-pressed="true"]{background:var(--tinta);color:var(--papel)}
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--suelo2);padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -3px 0 rgba(0,0,0,.25)}
+.barra div{max-width:492px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.barra .tot{color:var(--sobre);font-size:13px;line-height:1.1;white-space:nowrap}
+.barra .tot strong{display:block;font-family:var(--tit);font-size:38px;line-height:.95;color:var(--trigo)}
+.barra .boton{flex:1}
+
+/* ---------- podio ---------- */
+.corona{text-align:center;color:var(--sobre);margin:14px 0 14px}
+.corona h2{font-size:44px;color:var(--trigo);margin:0}
+.puesto{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px dashed var(--linea)}
+.puesto:last-of-type{border-bottom:0}
+.puesto .pos{font-family:var(--tit);font-weight:700;font-size:26px;width:38px;text-align:center}
+.puesto .ficha{width:28px;height:28px}
+.puesto .n{flex:1;min-width:0;font-weight:700;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.puesto .t{font-family:var(--tit);font-weight:700;font-size:32px}
+.puesto.primero .n,.puesto.primero .t{color:var(--pos)}
+table.desglose{width:100%;border-collapse:collapse;font-size:13px}
+table.desglose th,table.desglose td{padding:5px 3px;text-align:center;border-bottom:1px solid var(--linea)}
+table.desglose th:first-child,table.desglose td:first-child{text-align:left;font-weight:600}
+table.desglose thead th{font-size:12px;vertical-align:bottom}
+table.desglose .punto{display:block;width:14px;height:14px;border-radius:50%;margin:0 auto 3px;border:2px solid rgba(0,0,0,.25)}
+table.desglose tfoot td{font-weight:800;font-size:15px;border-bottom:0}
+table.desglose td.m{color:var(--neg);font-weight:700}
+
+/* ---------- ventanas ---------- */
+.velo{position:fixed;inset:0;z-index:60;background:rgba(10,18,10,.62);display:none;align-items:flex-end;justify-content:center}
+.velo.abierto{display:flex}
+.ventana{width:100%;max-width:520px;max-height:88%;overflow:auto;background:var(--papel);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:sube .22s ease-out}
+@keyframes sube{from{transform:translateY(30px);opacity:0}}
+.ventana .cierra{float:right;width:38px;height:38px;border-radius:50%;background:var(--papel2);font-size:22px;line-height:1}
+.ventana .legal{font-size:14.5px;-webkit-user-select:text;user-select:text}
+.idiomas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.idiomas button{padding:13px;border-radius:10px;background:var(--papel2);font-weight:700}
+.idiomas button[aria-pressed="true"]{background:var(--tinta);color:var(--papel)}
+.partida{border:1.5px solid var(--linea);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.partida .fecha{font-size:12.5px;color:var(--tinta2)}
+.partida .res{font-weight:700;margin:3px 0 6px}
+.partida .acc{display:flex;gap:8px}
+.partida .acc button{flex:1;padding:8px;border-radius:8px;background:var(--papel2);font-weight:700;font-size:14px}
+.partida .acc button.rojo{background:var(--granero);color:#fff5dc}
+.etiq{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--pos);color:var(--papel);margin-left:6px;vertical-align:1px}
+.tostada{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;background:var(--tinta);color:var(--papel);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14.5px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90%;text-align:center}
+.tostada.ver{opacity:1}
+#confeti{position:fixed;inset:0;z-index:70;pointer-events:none}
+#gira{position:fixed;inset:0;z-index:90;background:var(--suelo2);color:var(--sobre);display:none;place-items:center;font-family:var(--tit);font-size:34px}
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){#gira{display:grid}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ ENTRADA ============ -->
+<section id="entrada" class="activa" role="button" tabindex="0" aria-label="Agricola">
+  <img class="paisaje" src="splash.webp" alt="">
+  <div class="ent-texto">
+    <h1>Agricola</h1>
+    <div class="ent-palabra" data-i="splashWord">Contador</div>
+  </div>
+  <div class="ent-toca" data-i="toca">Toca para empezar</div>
+</section>
+
+<!-- ============ CABECERA ============ -->
+<header class="cab oculto" id="cab">
+  <div class="lado">
+    <button class="redondo" id="btnIdioma" aria-label="Idioma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
+  </div>
+  <div class="lado">
+    <button class="redondo" id="btnTema" aria-label="Tema"></button>
+    <button class="redondo" id="btnArchivo" aria-label="Archivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg></button>
+  </div>
+</header>
+
+<!-- ============ ACCESO ============ -->
+<section class="pantalla" id="acceso">
+  <h1 class="titulo">Agricola</h1>
+  <p class="subtitulo" data-i="splashWord">Contador</p>
+  <div class="hoja-papel">
+    <h2 data-i="accesoTit">Clave de licencia</h2>
+    <p class="ayuda" data-i="introClave"></p>
+    <input class="campo-clave" id="inClave" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24">
+    <div class="fila-botones">
+      <button class="boton" id="btnActivar" data-i="activar">Activar</button>
+      <button class="boton trigo" id="btnComprar" data-i="comprar">Comprar la clave</button>
+    </div>
+  </div>
+  <div class="hoja-papel">
+    <p id="txtPrueba" style="font-weight:600"></p>
+    <button class="boton liso" id="btnProbar" data-i="probar">Probar gratis</button>
+  </div>
+  <div class="pie"><button class="abreLegal"></button></div>
+</section>
+
+<!-- ============ INICIO ============ -->
+<section class="pantalla" id="inicio">
+  <h1 class="titulo">Agricola</h1>
+  <p class="subtitulo" data-i="splashWord">Contador</p>
+  <div class="aviso oculto" id="avisoPrueba"></div>
+  <button class="boton trigo oculto" id="btnContinuar" style="margin-bottom:14px" data-i="continuar">Continuar partida</button>
+  <div class="hoja-papel">
+    <h2 data-i="nuevaPartida">Nueva partida</h2>
+    <div class="linea-ajuste">
+      <b data-i="jugadores">Jugadores</b>
+      <div class="paso-grupo"><button class="paso" id="menosJ" aria-label="−">−</button><span class="valor" id="numJ">2</span><button class="paso" id="masJ" aria-label="+">+</button></div>
+    </div>
+    <div class="jug-lista" id="jugLista"></div>
+    <p class="ayuda" data-i="ayudaColor" style="margin-top:8px"></p>
+  </div>
+  <div class="hoja-papel">
+    <div class="linea-ajuste">
+      <div><b data-i="moor">Bosques y Cenagales</b><div class="ayuda" data-i="moorSub"></div></div>
+      <button class="interruptor" id="swMoor" role="switch" aria-checked="false" data-ia="moor"></button>
+    </div>
+  </div>
+  <button class="boton" id="btnEmpezar" data-i="empezar">Empezar partida</button>
+  <div class="pie"><button class="abreLegal"></button></div>
+</section>
+
+<!-- ============ HOJA ============ -->
+<section class="pantalla" id="hoja">
+  <div class="pestanas" id="pestanas" role="tablist"></div>
+  <div class="rotulo"><button id="btnSalir" class="salir" data-ia="inicioLbl"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5l-7 7 7 7"/></svg><span data-i="inicioLbl">Inicio</span></button><span id="rotuloTxt"></span><button id="btnTabla" data-i="tabla">Tabla de puntos</button></div>
+  <div class="filas" id="filas"></div>
+  <div class="barra"><div>
+    <span class="tot"><span data-i="total">Total</span><strong id="totalAct">0</strong></span>
+    <button class="boton" id="btnTerminar" data-i="terminar">Terminar partida</button>
+  </div></div>
+</section>
+
+<!-- ============ PODIO ============ -->
+<section class="pantalla" id="podio">
+  <div class="corona"><h2 id="podioTit"></h2><p id="podioSub" style="margin:4px 0 0"></p></div>
+  <div class="hoja-papel" id="podioLista"></div>
+  <div class="hoja-papel"><h2 data-i="desglose">Desglose</h2><div id="podioTabla"></div></div>
+  <div class="fila-botones">
+    <button class="boton" id="btnRevancha" data-i="revancha">Revancha</button>
+    <button class="boton trigo" id="btnNueva" data-i="nuevaPartida">Nueva partida</button>
+    <button class="boton sobre-suelo" id="btnVolver" data-i="volver">Volver a la hoja</button>
+  </div>
+</section>
+
+<!-- ============ VENTANAS ============ -->
+<div class="velo" id="velo"><div class="ventana" id="ventana" role="dialog" aria-modal="true"></div></div>
+<div class="tostada" id="tostada" role="status"></div>
+<canvas id="confeti"></canvas>
+<div id="gira" data-i="gira">Gira el móvil</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Contador de Agricola · PenTech
+   - Versión visible: VERSION
+   - Licencia: LICENCIA.clave (única para todos) y LICENCIA.compra (enlace
+     del producto en Buy Me a Coffee). LICENCIA.activa=false la deja gratis.
+   ===================================================================== */
+const VERSION = 'v1.0';
+const LICENCIA = {
+  activa: true,
+  clave: 'J77M-SZHG-35KH',
+  compra: 'https://buymeacoffee.com/pentech',
+  partidasPrueba: 3
+};
+const LS = {lic:'agricola-licencia-v1', usadas:'agricola-pruebas', idioma:'agricola-idioma', tema:'agricola-tema',
+            partida:'agricola-partida', hist:'agricola-historial-v1', ultimos:'agricola-ultimos'};
+const MAX_HIST = 200;
+
+/* ---------- reglas de puntuación ---------- */
+const FILAS = [
+  {id:'campos',     th:[2,3,4,5], max:20},
+  {id:'pastos',     th:[1,2,3,4], max:15},
+  {id:'cereales',   th:[1,4,6,8], max:60},
+  {id:'hortalizas', th:[1,2,3,4], max:40},
+  {id:'ovejas',     th:[1,4,6,8], max:40},
+  {id:'jabalies',   th:[1,3,5,7], max:40},
+  {id:'vacas',      th:[1,2,4,6], max:40},
+  {id:'caballos',   moor:true, max:40, r:'rCab'},
+  {id:'sinusar',    max:20, r:'rSinusar'},
+  {id:'establos',   max:4,  r:'rEstablos'},
+  {id:'hab',        min:2, max:15, casa:true},
+  {id:'fam',        min:2, max:5, r:'rFam'},
+  {id:'enf',        moor:true, max:5, r:'rEnf'},
+  {id:'cartas',     max:99, r:'rCartas'},
+  {id:'extra',      min:-30, max:99, r:'rExtra'},
+  {id:'mend',       max:30, r:'rMend'}
+];
+const VALORES0 = () => ({campos:0,pastos:0,cereales:0,hortalizas:0,ovejas:0,jabalies:0,vacas:0,caballos:0,
+                         sinusar:0,establos:0,hab:2,mat:0,fam:2,enf:0,cartas:0,extra:0,mend:0});
+function tramo(n, th){ return n < th[0] ? 0 : th.filter(x => n >= x).length; }      // 0..4
+function puntos(id, v){
+  const f = FILAS.find(x => x.id === id), n = v[id];
+  if (f.th) { const k = tramo(n, f.th); return k === 0 ? -1 : k; }
+  switch(id){
+    case 'caballos': return n === 0 ? -1 : n;
+    case 'sinusar':  return -n;
+    case 'establos': return n;
+    case 'hab':      return n * v.mat;
+    case 'fam':      return n * 3;
+    case 'enf':      return -2 * n;          // en cama: 1 punto en vez de 3
+    case 'mend':     return -3 * n;
+    default:         return n;               // cartas y extra
+  }
+}
+function filasActivas(moor){ return FILAS.filter(f => !f.moor || moor); }
+function total(v, moor){ return filasActivas(moor).reduce((s,f) => s + puntos(f.id, v), 0); }
+
+const COLORES = ['#b5352c','#2f62a8','#3c8a4a','#7a4a9c','#e7d3a6','#f0c419'];
+
+/* ---------- iconos de las filas (ilustraciones de Davito, carpeta iconos/) ---------- */
+const ICO = new Proxy({}, {get:(_, id) => `<img class="ico" src="iconos/${id}.webp" alt="" width="44" height="44" draggable="false">`});
+const ICO_SOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+const ICO_LUNA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></svg>';
+
+/* ---------- textos ---------- */
+const T = {
+es:{
+  nombreIdioma:'Español', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
+  accesoTit:'Clave de licencia', introClave:'Escribe tu clave para usar el contador sin límite de partidas. La recibes en el correo de confirmación de la compra.',
+  phClave:'Tu clave', activar:'Activar', comprar:'Comprar la clave', probar:'Probar gratis',
+  pruebaPuedes:r=>`Puedes probar el contador gratis durante ${r} ${r===1?'partida':'partidas'}.`,
+  pruebaAgotada:'Has usado las partidas de prueba. Con la clave puedes seguir contando.',
+  modoPrueba:r=>`Modo prueba: ${r===1?'te queda':'te quedan'} ${r} ${r===1?'partida':'partidas'}.`,
+  claveOk:'Clave activada', claveMal:'Esa clave no es correcta. Revisa las letras y los números.',
+  nuevaPartida:'Nueva partida', continuar:'Continuar partida', jugadores:'Jugadores',
+  ayudaColor:'Toca una ficha para cambiar su color.',
+  moor:'Bosques y Cenagales', moorSub:'Añade los caballos y los granjeros en cama.',
+  empezar:'Empezar partida', tabla:'Tabla de puntos', total:'Total', terminar:'Terminar partida',
+  colores:['Rojo','Azul','Verde','Morado','Natural','Amarillo'],
+  f:{campos:'Campos',pastos:'Pastos',cereales:'Cereales',hortalizas:'Hortalizas',ovejas:'Ovejas',jabalies:'Jabalíes',vacas:'Vacas',caballos:'Caballos',
+     sinusar:'Espacios sin usar',establos:'Establos vallados',hab:'Habitaciones',fam:'Granjeros',enf:'Granjeros en cama',cartas:'Puntos de cartas',extra:'Puntos adicionales',mend:'Mendicidad'},
+  mat:['Madera','Adobe','Piedra'],
+  rCab:'1 por caballo; sin caballos, −1', rSinusar:'−1 por espacio', rEstablos:'1 por establo, máximo 4',
+  rCasa:'Por habitación: adobe 1, piedra 2', rFam:'3 por granjero', rEnf:'Valen 1 punto en vez de 3',
+  rCartas:'Los puntos impresos en tus adquisiciones', rExtra:'Los puntos que otorgan tus cartas', rMend:'−3 por ficha de mendicidad',
+  y:'y', ptsCada:'Puntos', cantidad:'Cantidad',
+  gana:n=>`¡Gana ${n}!`, empate:'¡Empate!', granjaLista:'Granja terminada',
+  notaEmpate:'En la edición revisada desempata quien conserve más recursos de construcción. Si siguen igual, comparten el puesto.',
+  puntosDe:n=>`${n} puntos`, desglose:'Desglose', revancha:'Revancha', volver:'Volver a la hoja',
+  archivo:'Archivo de partidas', vacio:'Aún no hay partidas guardadas. Cuando termines una, aparecerá aquí.',
+  ver:'Ver', ocultar:'Ocultar', borrar:'Borrar', vaciar:'Vaciar el archivo', otraVez:'Toca otra vez para confirmar',
+  borrada:'Partida borrada', vaciado:'Archivo vaciado', enCurso:'Hay una partida a medias. Toca otra vez para empezar una nueva.',
+  idioma:'Idioma', avisoLegal:'Aviso legal', gira:'Gira el móvil', cerrar:'Cerrar', solo:'En solitario',
+  legal:'Contador de puntos no oficial, creado de forma independiente por PenTech. No está afiliado, patrocinado ni aprobado por Lookout Games ni por Devir. Agricola es un juego de Uwe Rosenberg publicado por Lookout Games y editado en España por Devir; los nombres y las marcas pertenecen a sus propietarios. Para jugar necesitas un ejemplar del juego. La clave de licencia da acceso a esta app, no al juego.',
+  app:'Contador de Agricola'
+},
+ca:{
+  nombreIdioma:'Català', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
+  accesoTit:'Clau de llicència', introClave:'Escriu la teva clau per fer servir el comptador sense límit de partides. La reps al correu de confirmació de la compra.',
+  phClave:'La teva clau', activar:'Activar', comprar:'Comprar la clau', probar:'Provar gratis',
+  pruebaPuedes:r=>`Pots provar el comptador gratis durant ${r} ${r===1?'partida':'partides'}.`,
+  pruebaAgotada:'Has fet servir les partides de prova. Amb la clau pots continuar comptant.',
+  modoPrueba:r=>`Mode prova: ${r===1?'et queda':'et queden'} ${r} ${r===1?'partida':'partides'}.`,
+  claveOk:'Clau activada', claveMal:'Aquesta clau no és correcta. Revisa les lletres i els números.',
+  nuevaPartida:'Nova partida', continuar:'Continuar la partida', jugadores:'Jugadors',
+  ayudaColor:'Toca una fitxa per canviar-ne el color.',
+  moor:'Boscos i Aiguamolls', moorSub:'Afegeix els cavalls i els grangers al llit.',
+  empezar:'Començar la partida', tabla:'Taula de punts', total:'Total', terminar:'Acabar la partida',
+  colores:['Vermell','Blau','Verd','Morat','Natural','Groc'],
+  f:{campos:'Camps',pastos:'Pastures',cereales:'Cereals',hortalizas:'Hortalisses',ovejas:'Ovelles',jabalies:'Senglars',vacas:'Vaques',caballos:'Cavalls',
+     sinusar:'Espais sense usar',establos:'Estables tancats',hab:'Habitacions',fam:'Grangers',enf:'Grangers al llit',cartas:'Punts de cartes',extra:'Punts addicionals',mend:'Mendicitat'},
+  mat:['Fusta','Tova','Pedra'],
+  rCab:'1 per cavall; sense cavalls, −1', rSinusar:'−1 per espai', rEstablos:'1 per estable, màxim 4',
+  rCasa:'Per habitació: tova 1, pedra 2', rFam:'3 per granger', rEnf:'Valen 1 punt en lloc de 3',
+  rCartas:'Els punts impresos a les teves adquisicions', rExtra:'Els punts que atorguen les teves cartes', rMend:'−3 per fitxa de mendicitat',
+  y:'i', ptsCada:'Punts', cantidad:'Quantitat',
+  gana:n=>`Guanya ${n}!`, empate:'Empat!', granjaLista:'Granja acabada',
+  notaEmpate:'A l’edició revisada desempata qui conservi més recursos de construcció. Si continuen igual, comparteixen el lloc.',
+  puntosDe:n=>`${n} punts`, desglose:'Desglossament', revancha:'Revenja', volver:'Tornar al full',
+  archivo:'Arxiu de partides', vacio:'Encara no hi ha partides desades. Quan n’acabis una, apareixerà aquí.',
+  ver:'Veure', ocultar:'Amagar', borrar:'Esborrar', vaciar:'Buidar l’arxiu', otraVez:'Toca un altre cop per confirmar',
+  borrada:'Partida esborrada', vaciado:'Arxiu buidat', enCurso:'Hi ha una partida a mitges. Toca un altre cop per començar-ne una de nova.',
+  idioma:'Idioma', avisoLegal:'Avís legal', gira:'Gira el mòbil', cerrar:'Tancar', solo:'En solitari',
+  legal:'Comptador de punts no oficial, creat de manera independent per PenTech. No està afiliat, patrocinat ni aprovat per Lookout Games ni per Devir. Agricola és un joc d’Uwe Rosenberg publicat per Lookout Games i editat a Espanya per Devir; els noms i les marques pertanyen als seus propietaris. Per jugar necessites un exemplar del joc. La clau de llicència dona accés a aquesta app, no al joc.',
+  app:'Comptador d’Agricola'
+},
+en:{
+  nombreIdioma:'English', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
+  accesoTit:'Licence key', introClave:'Enter your key to use the counter with no game limit. You get it in the purchase confirmation email.',
+  phClave:'Your key', activar:'Activate', comprar:'Buy the key', probar:'Try for free',
+  pruebaPuedes:r=>`You can try the counter for free for ${r} ${r===1?'game':'games'}.`,
+  pruebaAgotada:'You have used your trial games. With the key you can keep counting.',
+  modoPrueba:r=>`Trial mode: ${r} ${r===1?'game':'games'} left.`,
+  claveOk:'Key activated', claveMal:'That key is not right. Check the letters and numbers.',
+  nuevaPartida:'New game', continuar:'Continue game', jugadores:'Players',
+  ayudaColor:'Tap a token to change its colour.',
+  moor:'Farmers of the Moor', moorSub:'Adds horses and people in bed.',
+  empezar:'Start game', tabla:'Scoring table', total:'Total', terminar:'Finish game',
+  colores:['Red','Blue','Green','Purple','Natural','Yellow'],
+  f:{campos:'Fields',pastos:'Pastures',cereales:'Grain',hortalizas:'Vegetables',ovejas:'Sheep',jabalies:'Wild boar',vacas:'Cattle',caballos:'Horses',
+     sinusar:'Unused spaces',establos:'Fenced stables',hab:'Rooms',fam:'People',enf:'People in bed',cartas:'Card points',extra:'Bonus points',mend:'Begging'},
+  mat:['Wood','Clay','Stone'],
+  rCab:'1 per horse; no horses, −1', rSinusar:'−1 per space', rEstablos:'1 per stable, up to 4',
+  rCasa:'Per room: clay 1, stone 2', rFam:'3 per person', rEnf:'Worth 1 point instead of 3',
+  rCartas:'Points printed on your improvements', rExtra:'Points awarded by your cards', rMend:'−3 per begging marker',
+  y:'and', ptsCada:'Points', cantidad:'Amount',
+  gana:n=>`${n} wins!`, empate:'It’s a tie!', granjaLista:'Farm complete',
+  notaEmpate:'In the revised edition, the tied player with more building resources left wins. If still tied, they share the rank.',
+  puntosDe:n=>`${n} points`, desglose:'Breakdown', revancha:'Rematch', volver:'Back to the sheet',
+  archivo:'Game archive', vacio:'No saved games yet. Finish one and it will show up here.',
+  ver:'View', ocultar:'Hide', borrar:'Delete', vaciar:'Empty the archive', otraVez:'Tap again to confirm',
+  borrada:'Game deleted', vaciado:'Archive emptied', enCurso:'There is a game in progress. Tap again to start a new one.',
+  idioma:'Language', avisoLegal:'Legal notice', gira:'Rotate your phone', cerrar:'Close', solo:'Solo',
+  legal:'Unofficial score counter, created independently by PenTech. It is not affiliated with, sponsored or endorsed by Lookout Games or Devir. Agricola is a game by Uwe Rosenberg published by Lookout Games; names and trademarks belong to their owners. You need a copy of the game to play. The licence key gives access to this app, not to the game.',
+  app:'Agricola score counter'
+},
+fr:{
+  nombreIdioma:'Français', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
+  accesoTit:'Clé de licence', introClave:'Saisissez votre clé pour utiliser le compteur sans limite de parties. Vous la recevez dans l’e-mail de confirmation d’achat.',
+  phClave:'Votre clé', activar:'Activer', comprar:'Acheter la clé', probar:'Essayer gratuitement',
+  pruebaPuedes:r=>`Vous pouvez essayer le compteur gratuitement pendant ${r} ${r===1?'partie':'parties'}.`,
+  pruebaAgotada:'Vous avez utilisé les parties d’essai. Avec la clé, vous pouvez continuer à compter.',
+  modoPrueba:r=>`Mode essai : il vous reste ${r} ${r===1?'partie':'parties'}.`,
+  claveOk:'Clé activée', claveMal:'Cette clé n’est pas correcte. Vérifiez les lettres et les chiffres.',
+  nuevaPartida:'Nouvelle partie', continuar:'Continuer la partie', jugadores:'Joueurs',
+  ayudaColor:'Touchez un pion pour changer sa couleur.',
+  moor:'Les Fermiers de la Lande', moorSub:'Ajoute les chevaux et les personnes alitées.',
+  empezar:'Commencer la partie', tabla:'Tableau des points', total:'Total', terminar:'Terminer la partie',
+  colores:['Rouge','Bleu','Vert','Violet','Naturel','Jaune'],
+  f:{campos:'Champs',pastos:'Pâturages',cereales:'Céréales',hortalizas:'Légumes',ovejas:'Moutons',jabalies:'Sangliers',vacas:'Bœufs',caballos:'Chevaux',
+     sinusar:'Cases inutilisées',establos:'Étables clôturées',hab:'Pièces',fam:'Personnes',enf:'Personnes alitées',cartas:'Points des cartes',extra:'Points bonus',mend:'Mendicité'},
+  mat:['Bois','Argile','Pierre'],
+  rCab:'1 par cheval ; sans cheval, −1', rSinusar:'−1 par case', rEstablos:'1 par étable, 4 au maximum',
+  rCasa:'Par pièce : argile 1, pierre 2', rFam:'3 par personne', rEnf:'Valent 1 point au lieu de 3',
+  rCartas:'Les points imprimés sur vos aménagements', rExtra:'Les points accordés par vos cartes', rMend:'−3 par jeton Mendicité',
+  y:'et', ptsCada:'Points', cantidad:'Quantité',
+  gana:n=>`${n} gagne !`, empate:'Égalité !', granjaLista:'Ferme terminée',
+  notaEmpate:'Dans l’édition révisée, le joueur à égalité qui garde le plus de ressources de construction l’emporte. Sinon, ils partagent la place.',
+  puntosDe:n=>`${n} points`, desglose:'Détail', revancha:'Revanche', volver:'Retour à la feuille',
+  archivo:'Archive des parties', vacio:'Aucune partie enregistrée pour l’instant. Terminez-en une et elle apparaîtra ici.',
+  ver:'Voir', ocultar:'Masquer', borrar:'Supprimer', vaciar:'Vider l’archive', otraVez:'Touchez encore pour confirmer',
+  borrada:'Partie supprimée', vaciado:'Archive vidée', enCurso:'Une partie est en cours. Touchez encore pour en commencer une nouvelle.',
+  idioma:'Langue', avisoLegal:'Mentions légales', gira:'Tournez le téléphone', cerrar:'Fermer', solo:'En solitaire',
+  legal:'Compteur de points non officiel, créé de façon indépendante par PenTech. Il n’est ni affilié, ni sponsorisé, ni approuvé par Lookout Games ou Devir. Agricola est un jeu d’Uwe Rosenberg publié par Lookout Games ; les noms et les marques appartiennent à leurs propriétaires. Pour jouer, il vous faut un exemplaire du jeu. La clé de licence donne accès à cette application, pas au jeu.',
+  app:'Compteur pour Agricola'
+},
+de:{
+  nombreIdioma:'Deutsch', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
+  accesoTit:'Lizenzschlüssel', introClave:'Gib deinen Schlüssel ein, um den Zähler ohne Partienlimit zu nutzen. Du erhältst ihn in der Bestätigungsmail zum Kauf.',
+  phClave:'Dein Schlüssel', activar:'Aktivieren', comprar:'Schlüssel kaufen', probar:'Kostenlos testen',
+  pruebaPuedes:r=>`Du kannst den Zähler ${r} ${r===1?'Partie':'Partien'} lang kostenlos testen.`,
+  pruebaAgotada:'Deine Testpartien sind aufgebraucht. Mit dem Schlüssel kannst du weiterzählen.',
+  modoPrueba:r=>`Testmodus: noch ${r} ${r===1?'Partie':'Partien'}.`,
+  claveOk:'Schlüssel aktiviert', claveMal:'Dieser Schlüssel stimmt nicht. Prüfe Buchstaben und Ziffern.',
+  nuevaPartida:'Neue Partie', continuar:'Partie fortsetzen', jugadores:'Spieler',
+  ayudaColor:'Tippe auf einen Spielstein, um die Farbe zu ändern.',
+  moor:'Die Moorbauern', moorSub:'Bringt Pferde und Personen im Bett dazu.',
+  empezar:'Partie starten', tabla:'Punktetabelle', total:'Summe', terminar:'Partie beenden',
+  colores:['Rot','Blau','Grün','Lila','Natur','Gelb'],
+  f:{campos:'Äcker',pastos:'Weiden',cereales:'Getreide',hortalizas:'Gemüse',ovejas:'Schafe',jabalies:'Wildschweine',vacas:'Rinder',caballos:'Pferde',
+     sinusar:'Ungenutzte Hoffelder',establos:'Eingezäunte Ställe',hab:'Räume',fam:'Personen',enf:'Personen im Bett',cartas:'Kartenpunkte',extra:'Sonderpunkte',mend:'Bettelkarten'},
+  mat:['Holz','Lehm','Stein'],
+  rCab:'1 pro Pferd; ohne Pferde −1', rSinusar:'−1 pro Feld', rEstablos:'1 pro Stall, höchstens 4',
+  rCasa:'Pro Raum: Lehm 1, Stein 2', rFam:'3 pro Person', rEnf:'Zählen 1 Punkt statt 3',
+  rCartas:'Die aufgedruckten Punkte deiner Anschaffungen', rExtra:'Punkte, die deine Karten vergeben', rMend:'−3 pro Bettelkarte',
+  y:'und', ptsCada:'Punkte', cantidad:'Anzahl',
+  gana:n=>`${n} gewinnt!`, empate:'Unentschieden!', granjaLista:'Hof fertig',
+  notaEmpate:'In der überarbeiteten Ausgabe gewinnt bei Gleichstand, wer mehr Baustoffe übrig hat. Sonst teilen sie sich den Platz.',
+  puntosDe:n=>`${n} Punkte`, desglose:'Aufschlüsselung', revancha:'Revanche', volver:'Zurück zum Blatt',
+  archivo:'Partienarchiv', vacio:'Noch keine gespeicherten Partien. Beende eine, dann erscheint sie hier.',
+  ver:'Ansehen', ocultar:'Ausblenden', borrar:'Löschen', vaciar:'Archiv leeren', otraVez:'Zum Bestätigen noch einmal tippen',
+  borrada:'Partie gelöscht', vaciado:'Archiv geleert', enCurso:'Eine Partie läuft noch. Tippe noch einmal, um eine neue zu beginnen.',
+  idioma:'Sprache', avisoLegal:'Rechtlicher Hinweis', gira:'Dreh das Handy', cerrar:'Schließen', solo:'Solo',
+  legal:'Inoffizieller Punktezähler, unabhängig erstellt von PenTech. Er steht in keiner Verbindung zu Lookout Games oder Devir und wird von ihnen weder gesponsert noch unterstützt. Agricola ist ein Spiel von Uwe Rosenberg, erschienen bei Lookout Games; Namen und Marken gehören ihren Inhabern. Zum Spielen brauchst du ein Exemplar des Spiels. Der Lizenzschlüssel gibt Zugang zu dieser App, nicht zum Spiel.',
+  app:'Punktezähler für Agricola'
+},
+it:{
+  nombreIdioma:'Italiano', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
+  accesoTit:'Chiave di licenza', introClave:'Scrivi la tua chiave per usare il segnapunti senza limite di partite. La ricevi nell’e-mail di conferma dell’acquisto.',
+  phClave:'La tua chiave', activar:'Attiva', comprar:'Compra la chiave', probar:'Prova gratis',
+  pruebaPuedes:r=>`Puoi provare il segnapunti gratis per ${r} ${r===1?'partita':'partite'}.`,
+  pruebaAgotada:'Hai usato le partite di prova. Con la chiave puoi continuare a contare.',
+  modoPrueba:r=>`Modalità prova: ${r===1?'ti resta':'ti restano'} ${r} ${r===1?'partita':'partite'}.`,
+  claveOk:'Chiave attivata', claveMal:'Questa chiave non è corretta. Controlla lettere e numeri.',
+  nuevaPartida:'Nuova partita', continuar:'Continua la partita', jugadores:'Giocatori',
+  ayudaColor:'Tocca una pedina per cambiarne il colore.',
+  moor:'I Contadini della Brughiera', moorSub:'Aggiunge i cavalli e i familiari a letto.',
+  empezar:'Inizia la partita', tabla:'Tabella dei punti', total:'Totale', terminar:'Termina la partita',
+  colores:['Rosso','Blu','Verde','Viola','Naturale','Giallo'],
+  f:{campos:'Campi',pastos:'Pascoli',cereales:'Grano',hortalizas:'Ortaggi',ovejas:'Pecore',jabalies:'Cinghiali',vacas:'Bovini',caballos:'Cavalli',
+     sinusar:'Spazi inutilizzati',establos:'Stalle recintate',hab:'Stanze',fam:'Familiari',enf:'Familiari a letto',cartas:'Punti delle carte',extra:'Punti bonus',mend:'Mendicante'},
+  mat:['Legno','Argilla','Pietra'],
+  rCab:'1 per cavallo; senza cavalli, −1', rSinusar:'−1 per spazio', rEstablos:'1 per stalla, al massimo 4',
+  rCasa:'Per stanza: argilla 1, pietra 2', rFam:'3 per familiare', rEnf:'Valgono 1 punto invece di 3',
+  rCartas:'I punti stampati sulle tue migliorie', rExtra:'I punti assegnati dalle tue carte', rMend:'−3 per carta Mendicante',
+  y:'e', ptsCada:'Punti', cantidad:'Quantità',
+  gana:n=>`Vince ${n}!`, empate:'Pareggio!', granjaLista:'Fattoria completata',
+  notaEmpate:'Nell’edizione riveduta, in caso di parità vince chi conserva più risorse da costruzione. Altrimenti condividono la posizione.',
+  puntosDe:n=>`${n} punti`, desglose:'Dettaglio', revancha:'Rivincita', volver:'Torna al foglio',
+  archivo:'Archivio delle partite', vacio:'Ancora nessuna partita salvata. Terminane una e comparirà qui.',
+  ver:'Mostra', ocultar:'Nascondi', borrar:'Elimina', vaciar:'Svuota l’archivio', otraVez:'Tocca di nuovo per confermare',
+  borrada:'Partita eliminata', vaciado:'Archivio svuotato', enCurso:'C’è una partita in corso. Tocca di nuovo per iniziarne una nuova.',
+  idioma:'Lingua', avisoLegal:'Note legali', gira:'Ruota il telefono', cerrar:'Chiudi', solo:'In solitario',
+  legal:'Segnapunti non ufficiale, creato in modo indipendente da PenTech. Non è affiliato, sponsorizzato né approvato da Lookout Games o Devir. Agricola è un gioco di Uwe Rosenberg pubblicato da Lookout Games; nomi e marchi appartengono ai rispettivi proprietari. Per giocare serve una copia del gioco. La chiave di licenza dà accesso a questa app, non al gioco.',
+  app:'Segnapunti per Agricola'
+}};
+const IDIOMAS = ['es','ca','en','fr','de','it'];
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const ls = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const signo = n => n > 0 ? '+' + n : n < 0 ? '−' + Math.abs(n) : '0';
+const num = n => n < 0 ? '−' + Math.abs(n) : String(n);
+
+let idioma = (() => {
+  const g = ls.get(LS.idioma, null); if (IDIOMAS.includes(g)) return g;
+  const prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'];
+  for (const p of prefs){ const c = String(p).slice(0,2).toLowerCase(); if (IDIOMAS.includes(c)) return c; }
+  return 'en';
+})();
+function t(k, ...a){ const v = T[idioma][k] ?? T.es[k]; return typeof v === 'function' ? v(...a) : v; }
+const nomFila = id => T[idioma].f[id];
+const nomJug = j => j.nombre || T[idioma].colores[j.color];
+
+let tostadaT;
+function toast(m){ const e = $('#tostada'); e.textContent = m; e.classList.add('ver'); clearTimeout(tostadaT); tostadaT = setTimeout(() => e.classList.remove('ver'), 2400); }
+
+/* ---------- estado ---------- */
+let partida = ls.get(LS.partida, null);       // {id, fecha, moor, jug:[{nombre,color,v}], act, guardada}
+let ajuste = (() => {                         // pantalla de inicio
+  const u = ls.get(LS.ultimos, null);
+  const jug = (u && Array.isArray(u.jug) ? u.jug : []).filter(j => j && j.color >= 0 && j.color < 6).slice(0,6);
+  while (jug.length < 2) jug.push({nombre:'', color:[0,1,2,3,4,5].find(c => !jug.some(j => j.color === c))});
+  return {jug, moor: !!(u && u.moor)};
+})();
+let modoPrueba = false, pantalla = 'entrada';
+
+/* ---------- tema ---------- */
+function tema(){ return document.documentElement.dataset.tema; }
+function ponTema(x){
+  document.documentElement.dataset.tema = x;
+  $('#btnTema').innerHTML = x === 'noche' ? ICO_SOL : ICO_LUNA;
+  document.querySelector('meta[name=theme-color]').content = x === 'noche' ? '#13221a' : '#35603a';
+}
+ponTema(ls.get(LS.tema, null) || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'noche' : 'dia'));
+$('#btnTema').onclick = () => { const x = tema() === 'noche' ? 'dia' : 'noche'; ls.set(LS.tema, x); ponTema(x); };
+
+/* ---------- sonido (Web Audio, sin archivos) ---------- */
+let actx;
+function audio(){ try{ actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); }catch(e){} return actx; }
+function nota(f, cuando, dur, vol){
+  const a = audio(); if (!a) return;
+  const t0 = a.currentTime + cuando, g = a.createGain();
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  g.connect(a.destination);
+  [['triangle',1,1],['sine',2,.35]].forEach(([tipo,m,v]) => {
+    const o = a.createOscillator(), gg = a.createGain(); o.type = tipo; o.frequency.value = f * m; gg.gain.value = v;
+    o.connect(gg); gg.connect(g); o.start(t0); o.stop(t0 + dur + 0.05);
+  });
+}
+const N = {D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,Bb4:466.16,C5:523.25,D5:587.33,E5:659.26,F5:698.46,A3:220,D3:146.83,G3:196};
+function melodia(){   // danza campesina original, en re
+  const c = 0.21, tema = [['D4',1],['F4',1],['A4',1],['D5',2],['C5',1],['A4',1],['Bb4',1],['A4',1],['G4',2],['F4',1],['E4',1],['G4',1],['F4',1],['D4',3]];
+  let x = 0; tema.forEach(([n,d]) => { nota(N[n], x, d*c + .5, .22); x += d*c; });
+  [['D3',0],['G3',6*c],['A3',12*c],['D3',15*c]].forEach(([n,cu]) => nota(N[n], cu, 1.3, .16));
+}
+function fanfarria(){ ['D4','F4','A4','D5','F5'].forEach((n,i) => nota(N[n], i*.11, .9, .2)); nota(N.D3, 0, 1.4, .16); }
+function clic(){ nota(880, 0, .08, .05); }
+
+/* ---------- navegación ---------- */
+function ir(id){
+  pantalla = id; $('#tostada').classList.remove('ver');
+  $$('.pantalla, #entrada').forEach(p => p.classList.toggle('activa', p.id === id));
+  $('#cab').classList.toggle('oculto', id === 'entrada' || id === 'hoja');
+  window.scrollTo(0,0);
+  if (id === 'acceso') pintaAcceso();
+  if (id === 'inicio') pintaInicio();
+  if (id === 'hoja')   pintaHoja();
+  if (id === 'podio')  pintaPodio();
+}
+function aplicaIdioma(){
+  document.documentElement.lang = idioma;
+  document.title = t('app');
+  $$('[data-i]').forEach(e => { e.textContent = t(e.dataset.i); });
+  $$('[data-ia]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ia)));
+  $$('.abreLegal').forEach(b => { b.textContent = `${t('avisoLegal')} · ${VERSION}`; });
+  $('#inClave').placeholder = t('phClave');
+  $('#btnIdioma').setAttribute('aria-label', t('idioma'));
+  $('#btnArchivo').setAttribute('aria-label', t('archivo'));
+  if (pantalla !== 'entrada') ir(pantalla);
+}
+
+/* ---------- licencia ---------- */
+const conLicencia = () => !LICENCIA.activa || !!ls.get(LS.lic, false);
+const enPrueba = () => !conLicencia();
+const pruebasRestantes = () => Math.max(0, LICENCIA.partidasPrueba - ls.get(LS.usadas, 0));
+const limpia = s => String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
+function pintaAcceso(){
+  const r = pruebasRestantes();
+  $('#txtPrueba').textContent = r > 0 ? t('pruebaPuedes', r) : t('pruebaAgotada');
+  $('#btnProbar').classList.toggle('oculto', r <= 0);
+}
+function activar(){
+  const v = limpia($('#inClave').value);
+  if (v && v === limpia(LICENCIA.clave)){ ls.set(LS.lic, true); $('#inClave').value = ''; fanfarria(); toast(t('claveOk')); ir('inicio'); }
+  else { toast(t('claveMal')); }
+}
+$('#btnActivar').onclick = activar;
+$('#inClave').addEventListener('keydown', e => { if (e.key === 'Enter') activar(); });
+$('#btnComprar').onclick = () => window.open(LICENCIA.compra, '_blank', 'noopener');
+$('#btnProbar').onclick = () => { if (pruebasRestantes() > 0){ modoPrueba = true; clic(); ir('inicio'); } };
+
+/* ---------- entrada ---------- */
+function entrar(){
+  melodia();
+  if (enPrueba() && !modoPrueba) ir('acceso'); else ir('inicio');
+}
+$('#entrada').addEventListener('click', entrar);
+$('#entrada').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') entrar(); });
+
+/* ---------- inicio ---------- */
+function colorLibre(desde){
+  for (let i = 1; i <= 6; i++){ const c = (desde + i) % 6; if (!ajuste.jug.some(j => j.color === c)) return c; }
+  return desde;
+}
+function pintaInicio(){
+  const av = $('#avisoPrueba');
+  av.classList.toggle('oculto', !enPrueba());
+  if (enPrueba()) av.textContent = t('modoPrueba', pruebasRestantes());
+  $('#btnContinuar').classList.toggle('oculto', !partida);
+  $('#numJ').textContent = ajuste.jug.length;
+  $('#menosJ').disabled = ajuste.jug.length <= 1; $('#masJ').disabled = ajuste.jug.length >= 6;
+  $('#swMoor').setAttribute('aria-checked', ajuste.moor);
+  $('#jugLista').innerHTML = ajuste.jug.map((j,i) =>
+    `<div class="jug-fila"><button class="ficha" data-c="${i}" style="background:${COLORES[j.color]}" aria-label="${esc(T[idioma].colores[j.color])}"></button>
+     <input data-n="${i}" maxlength="14" value="${esc(j.nombre)}" placeholder="${esc(T[idioma].colores[j.color])}" autocomplete="off" enterkeyhint="done"></div>`).join('');
+}
+$('#jugLista').addEventListener('click', e => {
+  const b = e.target.closest('[data-c]'); if (!b) return;
+  const j = ajuste.jug[+b.dataset.c]; j.color = colorLibre(j.color); clic(); pintaInicio();
+});
+$('#jugLista').addEventListener('input', e => { const i = e.target.dataset.n; if (i !== undefined) ajuste.jug[+i].nombre = e.target.value.trim(); });
+$('#jugLista').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+$('#menosJ').onclick = () => { if (ajuste.jug.length > 1){ ajuste.jug.pop(); clic(); pintaInicio(); } };
+$('#masJ').onclick = () => { if (ajuste.jug.length < 6){ ajuste.jug.push({nombre:'', color:colorLibre(ajuste.jug[ajuste.jug.length-1].color)}); clic(); pintaInicio(); } };
+$('#swMoor').onclick = () => { ajuste.moor = !ajuste.moor; clic(); pintaInicio(); };
+$('#btnContinuar').onclick = () => { clic(); ir(partida && partida.terminada ? 'podio' : 'hoja'); };
+
+let avisoCurso = 0;
+function empezar(jugadores, moor){
+  if (enPrueba()){
+    if (pruebasRestantes() <= 0){ modoPrueba = false; ir('acceso'); return false; }
+    ls.set(LS.usadas, ls.get(LS.usadas, 0) + 1);
+  }
+  partida = {id: Date.now(), fecha: new Date().toISOString(), moor: !!moor, act: 0, terminada: false,
+             jug: jugadores.map(j => ({nombre: j.nombre, color: j.color, v: VALORES0()}))};
+  guarda(); ir('hoja'); return true;
+}
+$('#btnEmpezar').onclick = () => {
+  if (partida && !partida.terminada && Date.now() - avisoCurso > 4000){ avisoCurso = Date.now(); toast(t('enCurso')); return; }
+  ls.set(LS.ultimos, {jug: ajuste.jug, moor: ajuste.moor});
+  clic(); empezar(ajuste.jug, ajuste.moor);
+};
+function guarda(){ if (partida) ls.set(LS.partida, partida); else ls.del(LS.partida); }
+
+/* ---------- hoja de puntuación ---------- */
+function etiquetasTramo(th){
+  const lim = [0, ...th];
+  return lim.map((a,i) => { const b = i < th.length ? th[i] - 1 : null; return b === null ? a + '+' : a === b ? String(a) : a + '-' + b; });
+}
+function pintaHoja(){
+  if (!partida){ ir('inicio'); return; }
+  const P = partida;
+  $('#pestanas').innerHTML = P.jug.map((j,i) =>
+    `<button class="pestana" role="tab" data-j="${i}" aria-selected="${i === P.act}" style="--jug:${COLORES[j.color]}"><span>${esc(nomJug(j))}</span><strong>${num(total(j.v, P.moor))}</strong></button>`).join('');
+  $('#pestanas').classList.toggle('oculto', P.jug.length < 2);
+  const j = P.jug[P.act];
+  $('#rotuloTxt').textContent = [P.jug.length === 1 ? nomJug(j) : '', P.moor ? t('moor') : ''].filter(Boolean).join(' · ');
+  $('#filas').style.setProperty('--jug', COLORES[j.color]);
+  $('#filas').innerHTML = filasActivas(P.moor).map(f => {
+    let bajo;
+    if (f.th) bajo = `<div class="tramos" data-tr="${f.id}">${etiquetasTramo(f.th).map(e => `<i>${e}</i>`).join('')}</div>`;
+    else if (f.casa) bajo = `<div class="segmento">${T[idioma].mat.map((m,k) => `<button data-mat="${k}" aria-pressed="false">${esc(m)}</button>`).join('')}</div>`;
+    else bajo = `<div class="regla">${esc(t(f.r))}</div>`;
+    const ancho = f.th || f.casa;   // tramos y material ocupan toda la fila de abajo
+    return `<div class="fila${ancho ? ' ancha' : ''}" data-f="${f.id}">${ICO[f.id]}<div class="txt"><div class="nom">${esc(nomFila(f.id))}</div>${ancho ? '' : bajo}</div>
+      <div class="paso-grupo"><button class="paso" data-d="-1" aria-label="${esc(nomFila(f.id))} −">−</button><span class="valor"></span><button class="paso" data-d="1" aria-label="${esc(nomFila(f.id))} +">+</button></div>
+      <span class="disco"></span>${ancho ? `<div class="bajo">${bajo}</div>` : ''}</div>`;
+  }).join('');
+  filasActivas(P.moor).forEach(f => refresca(f.id));
+  refrescaTotales();
+}
+function limites(f, v){ return {min: f.min || 0, max: f.id === 'enf' ? v.fam : f.max}; }
+function refresca(id){
+  const P = partida, v = P.jug[P.act].v, f = FILAS.find(x => x.id === id), el = $(`.fila[data-f="${id}"]`);
+  if (!el) return;
+  const p = puntos(id, v), {min, max} = limites(f, v);
+  el.querySelector('.valor').textContent = num(v[id]);
+  const d = el.querySelector('.disco'); d.textContent = signo(p); d.className = 'disco' + (p < 0 ? ' neg' : p === 0 ? ' cero' : '');
+  el.querySelector('[data-d="-1"]').disabled = v[id] <= min; el.querySelector('[data-d="1"]').disabled = v[id] >= max;
+  if (f.th){ const k = tramo(v[id], f.th); el.querySelectorAll('.tramos i').forEach((x,i) => x.classList.toggle('on', i === k)); }
+  if (f.casa) el.querySelectorAll('[data-mat]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.mat === v.mat));
+}
+function refrescaTotales(){
+  const P = partida;
+  P.jug.forEach((j,i) => { const b = $(`.pestana[data-j="${i}"] strong`); if (b) b.textContent = num(total(j.v, P.moor)); });
+  $('#totalAct').textContent = num(total(P.jug[P.act].v, P.moor));
+}
+function cambia(id, d){
+  const P = partida, v = P.jug[P.act].v, f = FILAS.find(x => x.id === id), {min, max} = limites(f, v);
+  const n = Math.min(max, Math.max(min, v[id] + d)); if (n === v[id]) return false;
+  v[id] = n;
+  if (id === 'fam' && v.enf > v.fam){ v.enf = v.fam; }
+  refresca(id); if (id === 'fam' && P.moor) refresca('enf');
+  refrescaTotales(); guarda(); return true;
+}
+/* pulsación mantenida: repite */
+let rep, repT;
+function paraRep(){ clearTimeout(repT); clearInterval(rep); }
+$('#filas').addEventListener('pointerdown', e => {
+  const b = e.target.closest('.paso'); if (!b || b.disabled) return;
+  const id = b.closest('.fila').dataset.f, d = +b.dataset.d;
+  paraRep(); if (cambia(id, d)) clic();
+  repT = setTimeout(() => { rep = setInterval(() => { if (!cambia(id, d)) paraRep(); }, 85); }, 420);
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev => $('#filas').addEventListener(ev, paraRep));
+window.addEventListener('blur', paraRep);
+$('#filas').addEventListener('keydown', e => {   // teclado
+  const b = e.target.closest('.paso'); if (b && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); cambia(b.closest('.fila').dataset.f, +b.dataset.d); }
+});
+$('#filas').addEventListener('click', e => {
+  const m = e.target.closest('[data-mat]'); if (!m) return;
+  partida.jug[partida.act].v.mat = +m.dataset.mat; clic(); refresca('hab'); refrescaTotales(); guarda();
+});
+$('#pestanas').addEventListener('click', e => {
+  const b = e.target.closest('[data-j]'); if (!b) return;
+  partida.act = +b.dataset.j; guarda(); clic(); pintaHoja(); window.scrollTo(0,0);
+});
+
+/* ---------- final de partida ---------- */
+function resumen(P){   // datos que se guardan en el archivo
+  return {id: P.id, fecha: P.fecha, moor: P.moor,
+    jug: P.jug.map(j => { const pts = {}; filasActivas(P.moor).forEach(f => pts[f.id] = puntos(f.id, j.v));
+      return {nombre: j.nombre, color: j.color, total: total(j.v, P.moor), pts}; })};
+}
+function clasifica(jug){
+  const o = jug.map((j,i) => ({...j, i})).sort((a,b) => b.total - a.total);
+  o.forEach((j,k) => { j.pos = k > 0 && o[k-1].total === j.total ? o[k-1].pos : k + 1; });
+  return o;
+}
+function tablaDesglose(R){
+  const fs = filasActivas(R.moor).filter(f => R.jug[0].pts[f.id] !== undefined);
+  return `<table class="desglose"><thead><tr><th></th>${R.jug.map(j => `<th><span class="punto" style="background:${COLORES[j.color]}"></span>${esc(nomJug(j).slice(0,6))}</th>`).join('')}</tr></thead>
+    <tbody>${fs.map(f => `<tr><td>${esc(nomFila(f.id))}</td>${R.jug.map(j => `<td class="${j.pts[f.id] < 0 ? 'm' : ''}">${num(j.pts[f.id])}</td>`).join('')}</tr>`).join('')}</tbody>
+    <tfoot><tr><td>${esc(t('total'))}</td>${R.jug.map(j => `<td>${num(j.total)}</td>`).join('')}</tr></tfoot></table>`;
+}
+function terminar(){
+  const R = resumen(partida);
+  const h = ls.get(LS.hist, []).filter(x => x.id !== R.id); h.unshift(R); ls.set(LS.hist, h.slice(0, MAX_HIST));
+  partida.terminada = true; guarda();
+  ir('podio'); fanfarria(); confeti();
+}
+$('#btnTerminar').onclick = terminar;
+$('#btnSalir').onclick = () => { clic(); ir('inicio'); };
+function pintaPodio(){
+  if (!partida){ ir('inicio'); return; }
+  const R = resumen(partida), o = clasifica(R.jug), primeros = o.filter(j => j.pos === 1);
+  const uno = R.jug.length === 1;
+  $('#podioTit').textContent = uno ? t('granjaLista') : primeros.length > 1 ? t('empate') : t('gana', nomJug(primeros[0]));
+  $('#podioSub').textContent = uno ? t('puntosDe', num(o[0].total)) : primeros.length > 1 ? t('notaEmpate') : t('puntosDe', num(primeros[0].total));
+  $('#podioLista').innerHTML = o.map(j => `<div class="puesto${j.pos === 1 ? ' primero' : ''}"><span class="pos">${j.pos}.</span><span class="ficha" style="background:${COLORES[j.color]}"></span><span class="n">${esc(nomJug(j))}</span><span class="t">${num(j.total)}</span></div>`).join('');
+  $('#podioTabla').innerHTML = tablaDesglose(R);
+}
+$('#btnVolver').onclick = () => { partida.terminada = false; guarda(); clic(); ir('hoja'); };
+$('#btnRevancha').onclick = () => { clic(); empezar(partida.jug, partida.moor); };
+$('#btnNueva').onclick = () => { clic(); partida = null; guarda(); ir('inicio'); };
+
+/* ---------- ventanas ---------- */
+function abre(html){ $('#ventana').innerHTML = `<button class="cierra" data-cierra aria-label="${esc(t('cerrar'))}">×</button>` + html; $('#velo').classList.add('abierto'); $('#ventana').scrollTop = 0; }
+function cierra(){ $('#velo').classList.remove('abierto'); }
+$('#velo').addEventListener('click', e => { if (e.target.id === 'velo' || e.target.closest('[data-cierra]')) cierra(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cierra(); });
+
+document.addEventListener('click', e => { if (e.target.closest('.abreLegal')) abre(`<h2>${esc(t('avisoLegal'))}</h2><p class="legal">${esc(t('legal'))}</p><p class="legal ayuda">${esc(t('app'))} · ${VERSION}</p>`); });
+
+$('#btnIdioma').onclick = () => abre(`<h2>${esc(t('idioma'))}</h2><div class="idiomas">${IDIOMAS.map(c => `<button data-idioma="${c}" aria-pressed="${c === idioma}">${T[c].nombreIdioma}</button>`).join('')}</div>`);
+$('#ventana').addEventListener('click', e => {
+  const b = e.target.closest('[data-idioma]'); if (b){ idioma = b.dataset.idioma; ls.set(LS.idioma, idioma); cierra(); aplicaIdioma(); return; }
+  const v = e.target.closest('[data-ver]'); if (v){ const d = $(`#det-${v.dataset.ver}`); const abierto = d.classList.toggle('oculto'); v.textContent = abierto ? t('ver') : t('ocultar'); return; }
+  const x = e.target.closest('[data-borra]'); if (x){ dobleToque(x, () => { ls.set(LS.hist, ls.get(LS.hist, []).filter(p => String(p.id) !== x.dataset.borra)); toast(t('borrada')); abreArchivo(); }); return; }
+  const z = e.target.closest('[data-vacia]'); if (z){ dobleToque(z, () => { ls.set(LS.hist, []); toast(t('vaciado')); abreArchivo(); }); }
+});
+function dobleToque(b, hacer){
+  if (b.dataset.listo){ hacer(); return; }
+  b.dataset.listo = '1'; const antes = b.textContent; b.textContent = t('otraVez'); b.classList.add('rojo');
+  setTimeout(() => { if (b.isConnected){ delete b.dataset.listo; b.textContent = antes; b.classList.remove('rojo'); } }, 3000);
+}
+
+$('#btnTabla').onclick = () => {
+  const P = partida, cab = ['−1','1','2','3','4'];
+  const filas = FILAS.filter(f => f.th).map(f => `<tr><td>${esc(nomFila(f.id))}</td>${etiquetasTramo(f.th).map(e => `<td>${e}</td>`).join('')}</tr>`).join('');
+  const otras = FILAS.filter(f => !f.th && (!f.moor || P.moor)).map(f => `<tr><td>${esc(nomFila(f.id))}</td><td style="text-align:left">${esc(t(f.casa ? 'rCasa' : f.r))}</td></tr>`).join('');
+  abre(`<h2>${esc(t('tabla'))}</h2>
+    <table class="desglose"><thead><tr><th>${esc(t('ptsCada'))}</th>${cab.map(c => `<th style="font-size:15px">${c}</th>`).join('')}</tr></thead><tbody>${filas}</tbody></table>
+    <table class="desglose" style="margin-top:14px"><tbody>${otras}</tbody></table>
+    <p class="ayuda" style="margin-top:12px">${esc(t('notaEmpate'))}</p>`);
+};
+
+function abreArchivo(){
+  const h = ls.get(LS.hist, []);
+  const fmt = new Intl.DateTimeFormat(idioma, {day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'});
+  const cuerpo = h.length ? h.map(R => {
+    const o = clasifica(R.jug), gan = o.filter(j => j.pos === 1);
+    const res = R.jug.length === 1 ? `${esc(nomJug(o[0]))}: ${num(o[0].total)}` : o.map(j => `${j.pos}. ${esc(nomJug(j))} ${num(j.total)}`).join(' · ');
+    return `<div class="partida"><div class="fecha">${esc(fmt.format(new Date(R.fecha)))}${R.moor ? `<span class="etiq">${esc(t('moor'))}</span>` : ''}${R.jug.length === 1 ? `<span class="etiq">${esc(t('solo'))}</span>` : gan.length > 1 ? `<span class="etiq">${esc(t('empate'))}</span>` : ''}</div>
+      <div class="res">${res}</div>
+      <div class="oculto" id="det-${R.id}" style="margin-bottom:8px">${tablaDesglose(R)}</div>
+      <div class="acc"><button data-ver="${R.id}">${esc(t('ver'))}</button><button data-borra="${R.id}">${esc(t('borrar'))}</button></div></div>`;
+  }).join('') + `<button class="boton liso" data-vacia>${esc(t('vaciar'))}</button>` : `<p class="ayuda">${esc(t('vacio'))}</p>`;
+  abre(`<h2>${esc(t('archivo'))}</h2>${cuerpo}`);
+}
+$('#btnArchivo').onclick = abreArchivo;
+
+/* ---------- confeti ---------- */
+function confeti(){
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = $('#confeti'), x = c.getContext('2d'), W = c.width = innerWidth, H = c.height = innerHeight;
+  const col = ['#e0ad2f','#a3312a','#7fb25a','#fbf6e6','#2f62a8','#e8822a'];
+  const ps = Array.from({length:130}, () => ({x:Math.random()*W, y:-20-Math.random()*H*.6, s:5+Math.random()*7, vy:2+Math.random()*3.5, vx:-1.2+Math.random()*2.4, r:Math.random()*6, vr:-.2+Math.random()*.4, c:col[Math.floor(Math.random()*col.length)]}));
+  const fin = performance.now() + 3600;
+  (function paso(ahora){
+    x.clearRect(0,0,W,H);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.r += p.vr; x.save(); x.translate(p.x,p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66); x.restore(); });
+    if (ahora < fin) requestAnimationFrame(paso); else x.clearRect(0,0,W,H);
+  })(performance.now());
+}
+
+/* ---------- sin zoom ni menús del navegador ---------- */
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+document.addEventListener('contextmenu', e => { if (!e.target.closest('.legal, input')) e.preventDefault(); });
+
+/* ---------- arranque ---------- */
+aplicaIdioma();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(() => {}));
+}
+</script>
+</body>
+</html>
