@@ -4,7 +4,7 @@
    El sitio pentech-26.github.io se comparte con los demás contadores y con
    LudoTech: al activarse solo se borran las cachés que empiezan por
    'agricola-contador-'. */
-const CACHE = 'agricola-contador-v12';
+const CACHE = 'agricola-contador-v13';
 const PREFIJO = 'agricola-contador-';
 const ICONOS = ['campos','pastos','cereales','hortalizas','ovejas','jabalies','vacas','caballos','sinusar','establos','hab','fam','enf','cartas','extra','mend'].map(n => `./iconos/${n}.webp`);
 const ARCHIVOS = [...ICONOS, './', './index.html', './manifest.json', './splash.webp', './tierra.webp',
