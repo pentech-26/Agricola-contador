@@ -130,7 +130,21 @@ body.en-entrada{background:#2a1c0c}
   box-shadow:inset 0 3px 0 rgba(255,232,190,.5),inset 0 -6px 0 rgba(70,30,6,.45),inset 0 -1px 0 rgba(40,15,2,.6)}
 @keyframes late{50%{transform:translateX(-50%) scale(1.04)}}
 
-/* ---------- acceso ---------- */
+/* ---------- versión gratis / completa ---------- */
+/* candado a todo color: lo bloqueado se distingue solo por el texto en gris, nunca con opacity */
+.candado{font-style:normal;font-size:1.05em;margin-left:6px;display:inline-block;vertical-align:-.05em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.bloq-txt{color:var(--tinta2)}
+.candado-paso{position:absolute;right:-7px;top:-9px;font-size:15px;line-height:1;text-shadow:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+#masJ{position:relative}
+.enlace-pro{display:block;margin:16px auto 0;padding:8px 12px;color:var(--sobre);font-weight:700;font-size:16px;text-decoration:underline;text-underline-offset:4px}
+.pro-bloq{font-weight:700;color:var(--granero);margin:0 0 8px}
+.pro-lista{list-style:none;margin:6px 0 14px;padding:0}
+.pro-lista li{position:relative;padding:8px 0 8px 28px;border-bottom:1.5px dashed var(--linea);font-size:15.5px}
+.pro-lista li:last-child{border-bottom:0}
+.pro-lista li::before{content:"✓";position:absolute;left:4px;top:7px;font-weight:800;color:var(--pos)}
+.pro-sep{font-weight:700;margin:18px 0 8px}
+.pro-msg{min-height:1.3em;font-weight:600;color:var(--neg);margin:6px 0 0;text-align:center}
+.mas-archivo{display:block;width:100%;margin:2px 0 10px;padding:11px 12px;border:1.5px dashed var(--linea);border-radius:12px;font-style:italic;font-size:14.5px;line-height:1.4;text-align:left;color:var(--tinta)}
 .campo-clave{width:100%;padding:13px 12px;border-radius:10px;border:2px solid var(--linea);background:rgba(255,255,255,.35);font-size:19px;font-weight:700;text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;-webkit-user-select:text;user-select:text}
 :root[data-tema="noche"] .campo-clave{background:rgba(0,0,0,.25)}
 .campo-clave::placeholder{letter-spacing:0;text-transform:none;font-weight:500;color:var(--tinta2);opacity:.8}
@@ -284,49 +298,29 @@ table.desglose td.m{color:var(--neg);font-weight:700}
   </div>
 </header>
 
-<!-- ============ ACCESO ============ -->
-<section class="pantalla" id="acceso">
-  <h1 class="titulo">Agricola</h1>
-  <p class="subtitulo" data-i="splashWord">Contador</p>
-  <div class="hoja-papel">
-    <h2 data-i="accesoTit">Clave de licencia</h2>
-    <p class="ayuda" data-i="introClave"></p>
-    <input class="campo-clave" id="inClave" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24">
-    <div class="fila-botones">
-      <button class="boton" id="btnActivar" data-i="activar">Activar</button>
-      <button class="boton trigo" id="btnComprar" data-i="comprar">Comprar la clave</button>
-    </div>
-  </div>
-  <div class="hoja-papel">
-    <p id="txtPrueba" style="font-weight:600"></p>
-    <button class="boton liso" id="btnProbar" data-i="probar">Probar gratis</button>
-  </div>
-  <div class="pie"><button class="abreLegal"></button></div>
-</section>
-
 <!-- ============ INICIO ============ -->
 <section class="pantalla" id="inicio">
   <h1 class="titulo">Agricola</h1>
   <p class="subtitulo" data-i="splashWord">Contador</p>
-  <div class="aviso oculto" id="avisoPrueba"></div>
   <button class="boton trigo oculto" id="btnContinuar" style="margin-bottom:14px" data-i="continuar">Continuar partida</button>
   <div class="hoja-papel">
     <h2 data-i="nuevaPartida">Nueva partida</h2>
     <div class="linea-ajuste">
       <b data-i="jugadores">Jugadores</b>
-      <div class="paso-grupo"><button class="paso" id="menosJ" aria-label="−">−</button><span class="valor" id="numJ">2</span><button class="paso" id="masJ" aria-label="+">+</button></div>
+      <div class="paso-grupo"><button class="paso" id="menosJ" aria-label="−">−</button><span class="valor" id="numJ">2</span><button class="paso" id="masJ" aria-label="+">+<span class="candado-paso oculto" id="candMasJ" aria-hidden="true">🔒</span></button></div>
     </div>
     <div class="jug-lista" id="jugLista"></div>
     <p class="ayuda" data-i="ayudaColor" style="margin-top:8px"></p>
   </div>
   <div class="hoja-papel">
     <div class="linea-ajuste">
-      <div><b data-i="moor">Bosques y Cenagales</b><div class="ayuda" data-i="moorSub"></div></div>
+      <div><b><span data-i="moor">Bosques y Cenagales</span><span class="pro-candado" id="candMoor"></span></b><div class="ayuda" data-i="moorSub"></div></div>
       <button class="interruptor" id="swMoor" role="switch" aria-checked="false" data-ia="moor"></button>
     </div>
   </div>
   <button class="boton" id="btnEmpezar" data-i="empezar">Empezar partida</button>
   <button class="boton madera-btn abreArchivo" style="margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg><span data-i="archivo">Archivo de partidas</span></button>
+  <button class="enlace-pro" id="btnPro"></button>
   <div class="pie"><button class="abreLegal"></button></div>
 </section>
 
@@ -368,17 +362,21 @@ table.desglose td.m{color:var(--neg);font-weight:700}
 /* =====================================================================
    Contador de Agricola · PenTech
    - Versión visible: VERSION
-   - Licencia: LICENCIA.clave (única para todos) y LICENCIA.compra (enlace
-     del producto en Buy Me a Coffee). LICENCIA.activa=false la deja gratis.
+   - Versión gratis + versión completa con clave (sin partidas de prueba).
+     Gratis: juego base, 1 a LICENCIA.maxGratis jugadores, todas las filas de
+     puntuación y el archivo con las LICENCIA.archivoGratis últimas a la vista.
+     Completa: 5 y 6 jugadores, Bosques y Cenagales y archivo completo.
+     LICENCIA.activa=false lo desbloquea todo (solo para pruebas).
    ===================================================================== */
 const VERSION = 'v1.0';
 const LICENCIA = {
   activa: true,
   clave: 'J77M-SZHG-35KH',
   compra: 'https://buymeacoffee.com/pentech/e/597790',
-  partidasPrueba: 3
+  maxGratis: 4,
+  archivoGratis: 3
 };
-const LS = {lic:'agricola-licencia-v1', usadas:'agricola-pruebas', idioma:'agricola-idioma', tema:'agricola-tema',
+const LS = {lic:'agricola-licencia-v1', idioma:'agricola-idioma', tema:'agricola-tema',
             partida:'agricola-partida', hist:'agricola-historial-v1', ultimos:'agricola-ultimos'};
 const MAX_HIST = 200;
 
@@ -431,12 +429,11 @@ const ICO_LUNA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 /* ---------- textos ---------- */
 const T = {
 es:{
-  nombreIdioma:'Español', tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', tema:'Modo día o noche', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
-  accesoTit:'Clave de licencia', introClave:'Escribe tu clave para usar el contador sin límite de partidas. La recibes en el correo de confirmación de la compra.',
-  phClave:'Tu clave', activar:'Activar', comprar:'Comprar la clave', probar:'Probar gratis',
-  pruebaPuedes:r=>`Puedes probar el contador gratis durante ${r} ${r===1?'partida':'partidas'}.`,
-  pruebaAgotada:'Has usado las partidas de prueba. Con la clave puedes seguir contando.',
-  modoPrueba:r=>`Modo prueba: ${r===1?'te queda':'te quedan'} ${r} ${r===1?'partida':'partidas'}.`,
+  nombreIdioma:'Español', pro:"Versión completa", proD:"Desbloquea todo el contador con una sola compra:", proLista:["Partidas de 5 y 6 jugadores", "Ampliación Bosques y Cenagales: caballos y granjeros en cama", "Archivo de partidas completo"], proBloq:"Esto está en la versión completa.", tengoClave:"¿Ya tienes la clave?", clavePie:"La recibes en el correo de confirmación de la compra.", proOk:"Tienes la versión completa. ¡Gracias por apoyar PenTech!", archMas:"Y {n} partidas más guardadas. Las verás con la versión completa.", archMas1:"Y 1 partida más guardada. La verás con la versión completa.", tAuto:'Automático', tDia:'Modo día', tNoche:'Modo noche', tema:'Modo día o noche', inicioLbl:'Inicio', splashWord:'Contador', toca:'Toca para empezar',
+  phClave:'Tu clave', activar:'Activar', comprar:'Comprar la clave',
+
+
+
   claveOk:'Clave activada', claveMal:'Esa clave no es correcta. Revisa las letras y los números.',
   nuevaPartida:'Nueva partida', continuar:'Continuar partida', jugadores:'Jugadores',
   ayudaColor:'Toca una ficha para cambiar su color.',
@@ -461,12 +458,11 @@ es:{
   app:'Contador de Agricola'
 },
 ca:{
-  nombreIdioma:'Català', tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', tema:'Mode dia o nit', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
-  accesoTit:'Clau de llicència', introClave:'Escriu la teva clau per fer servir el comptador sense límit de partides. La reps al correu de confirmació de la compra.',
-  phClave:'La teva clau', activar:'Activar', comprar:'Comprar la clau', probar:'Provar gratis',
-  pruebaPuedes:r=>`Pots provar el comptador gratis durant ${r} ${r===1?'partida':'partides'}.`,
-  pruebaAgotada:'Has fet servir les partides de prova. Amb la clau pots continuar comptant.',
-  modoPrueba:r=>`Mode prova: ${r===1?'et queda':'et queden'} ${r} ${r===1?'partida':'partides'}.`,
+  nombreIdioma:'Català', pro:"Versió completa", proD:"Desbloqueja tot el comptador amb una sola compra:", proLista:["Partides de 5 i 6 jugadors", "Ampliació Boscos i Aiguamolls: cavalls i grangers al llit", "Arxiu de partides complet"], proBloq:"Això és a la versió completa.", tengoClave:"Ja tens la clau?", clavePie:"La reps al correu de confirmació de la compra.", proOk:"Tens la versió completa. Gràcies per donar suport a PenTech!", archMas:"I {n} partides més desades. Les veuràs amb la versió completa.", archMas1:"I 1 partida més desada. La veuràs amb la versió completa.", tAuto:'Automàtic', tDia:'Mode dia', tNoche:'Mode nit', tema:'Mode dia o nit', inicioLbl:'Inici', splashWord:'Comptador', toca:'Toca per començar',
+  phClave:'La teva clau', activar:'Activar', comprar:'Comprar la clau',
+
+
+
   claveOk:'Clau activada', claveMal:'Aquesta clau no és correcta. Revisa les lletres i els números.',
   nuevaPartida:'Nova partida', continuar:'Continuar la partida', jugadores:'Jugadors',
   ayudaColor:'Toca una fitxa per canviar-ne el color.',
@@ -491,12 +487,11 @@ ca:{
   app:'Comptador d’Agricola'
 },
 en:{
-  nombreIdioma:'English', tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', tema:'Day or night mode', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
-  accesoTit:'Licence key', introClave:'Enter your key to use the counter with no game limit. You get it in the purchase confirmation email.',
-  phClave:'Your key', activar:'Activate', comprar:'Buy the key', probar:'Try for free',
-  pruebaPuedes:r=>`You can try the counter for free for ${r} ${r===1?'game':'games'}.`,
-  pruebaAgotada:'You have used your trial games. With the key you can keep counting.',
-  modoPrueba:r=>`Trial mode: ${r} ${r===1?'game':'games'} left.`,
+  nombreIdioma:'English', pro:"Full version", proD:"Unlock the whole counter with a single purchase:", proLista:["5 and 6 player games", "Farmers of the Moor expansion: horses and people in bed", "Full game archive"], proBloq:"This is part of the full version.", tengoClave:"Already have a key?", clavePie:"You get it in the purchase confirmation email.", proOk:"You have the full version. Thanks for supporting PenTech!", archMas:"And {n} more saved games. You will see them with the full version.", archMas1:"And 1 more saved game. You will see it with the full version.", tAuto:'Automatic', tDia:'Day mode', tNoche:'Night mode', tema:'Day or night mode', inicioLbl:'Home', splashWord:'Score counter', toca:'Tap to start',
+  phClave:'Your key', activar:'Activate', comprar:'Buy the key',
+
+
+
   claveOk:'Key activated', claveMal:'That key is not right. Check the letters and numbers.',
   nuevaPartida:'New game', continuar:'Continue game', jugadores:'Players',
   ayudaColor:'Tap a token to change its colour.',
@@ -521,12 +516,11 @@ en:{
   app:'Agricola score counter'
 },
 fr:{
-  nombreIdioma:'Français', tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', tema:'Mode jour ou nuit', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
-  accesoTit:'Clé de licence', introClave:'Saisissez votre clé pour utiliser le compteur sans limite de parties. Vous la recevez dans l’e-mail de confirmation d’achat.',
-  phClave:'Votre clé', activar:'Activer', comprar:'Acheter la clé', probar:'Essayer gratuitement',
-  pruebaPuedes:r=>`Vous pouvez essayer le compteur gratuitement pendant ${r} ${r===1?'partie':'parties'}.`,
-  pruebaAgotada:'Vous avez utilisé les parties d’essai. Avec la clé, vous pouvez continuer à compter.',
-  modoPrueba:r=>`Mode essai : il vous reste ${r} ${r===1?'partie':'parties'}.`,
+  nombreIdioma:'Français', pro:"Version complète", proD:"Débloquez tout le compteur en un seul achat :", proLista:["Parties à 5 et 6 joueurs", "Extension Les Fermiers de la Lande : chevaux et personnes alitées", "Archives complètes"], proBloq:"Ceci fait partie de la version complète.", tengoClave:"Vous avez déjà la clé ?", clavePie:"Vous la recevez dans l’e-mail de confirmation d’achat.", proOk:"Vous avez la version complète. Merci de soutenir PenTech !", archMas:"Et {n} autres parties enregistrées. Vous les verrez avec la version complète.", archMas1:"Et 1 autre partie enregistrée. Vous la verrez avec la version complète.", tAuto:'Automatique', tDia:'Mode jour', tNoche:'Mode nuit', tema:'Mode jour ou nuit', inicioLbl:'Accueil', splashWord:'Compteur', toca:'Touchez pour commencer',
+  phClave:'Votre clé', activar:'Activer', comprar:'Acheter la clé',
+
+
+
   claveOk:'Clé activée', claveMal:'Cette clé n’est pas correcte. Vérifiez les lettres et les chiffres.',
   nuevaPartida:'Nouvelle partie', continuar:'Continuer la partie', jugadores:'Joueurs',
   ayudaColor:'Touchez un pion pour changer sa couleur.',
@@ -551,12 +545,11 @@ fr:{
   app:'Compteur pour Agricola'
 },
 de:{
-  nombreIdioma:'Deutsch', tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', tema:'Tag- oder Nachtmodus', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
-  accesoTit:'Lizenzschlüssel', introClave:'Gib deinen Schlüssel ein, um den Zähler ohne Partienlimit zu nutzen. Du erhältst ihn in der Bestätigungsmail zum Kauf.',
-  phClave:'Dein Schlüssel', activar:'Aktivieren', comprar:'Schlüssel kaufen', probar:'Kostenlos testen',
-  pruebaPuedes:r=>`Du kannst den Zähler ${r} ${r===1?'Partie':'Partien'} lang kostenlos testen.`,
-  pruebaAgotada:'Deine Testpartien sind aufgebraucht. Mit dem Schlüssel kannst du weiterzählen.',
-  modoPrueba:r=>`Testmodus: noch ${r} ${r===1?'Partie':'Partien'}.`,
+  nombreIdioma:'Deutsch', pro:"Vollversion", proD:"Schalte den ganzen Zähler mit einem einzigen Kauf frei:", proLista:["Partien mit 5 und 6 Spielern", "Erweiterung Die Moorbauern: Pferde und Personen im Bett", "Vollständiges Partienarchiv"], proBloq:"Das gehört zur Vollversion.", tengoClave:"Schon einen Schlüssel?", clavePie:"Du erhältst ihn in der Bestätigungsmail zum Kauf.", proOk:"Du hast die Vollversion. Danke, dass du PenTech unterstützt!", archMas:"Und {n} weitere gespeicherte Partien. Du siehst sie mit der Vollversion.", archMas1:"Und 1 weitere gespeicherte Partie. Du siehst sie mit der Vollversion.", tAuto:'Automatisch', tDia:'Heller Modus', tNoche:'Dunkler Modus', tema:'Tag- oder Nachtmodus', inicioLbl:'Start', splashWord:'Punktezähler', toca:'Zum Starten tippen',
+  phClave:'Dein Schlüssel', activar:'Aktivieren', comprar:'Schlüssel kaufen',
+
+
+
   claveOk:'Schlüssel aktiviert', claveMal:'Dieser Schlüssel stimmt nicht. Prüfe Buchstaben und Ziffern.',
   nuevaPartida:'Neue Partie', continuar:'Partie fortsetzen', jugadores:'Spieler',
   ayudaColor:'Tippe auf einen Spielstein, um die Farbe zu ändern.',
@@ -581,12 +574,11 @@ de:{
   app:'Punktezähler für Agricola'
 },
 it:{
-  nombreIdioma:'Italiano', tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', tema:'Modalità giorno o notte', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
-  accesoTit:'Chiave di licenza', introClave:'Scrivi la tua chiave per usare il segnapunti senza limite di partite. La ricevi nell’e-mail di conferma dell’acquisto.',
-  phClave:'La tua chiave', activar:'Attiva', comprar:'Compra la chiave', probar:'Prova gratis',
-  pruebaPuedes:r=>`Puoi provare il segnapunti gratis per ${r} ${r===1?'partita':'partite'}.`,
-  pruebaAgotada:'Hai usato le partite di prova. Con la chiave puoi continuare a contare.',
-  modoPrueba:r=>`Modalità prova: ${r===1?'ti resta':'ti restano'} ${r} ${r===1?'partita':'partite'}.`,
+  nombreIdioma:'Italiano', pro:"Versione completa", proD:"Sblocca tutto il segnapunti con un solo acquisto:", proLista:["Partite a 5 e 6 giocatori", "Espansione I Contadini della Brughiera: cavalli e familiari a letto", "Archivio completo delle partite"], proBloq:"Questo fa parte della versione completa.", tengoClave:"Hai già la chiave?", clavePie:"La ricevi nell’e-mail di conferma dell’acquisto.", proOk:"Hai la versione completa. Grazie per sostenere PenTech!", archMas:"E altre {n} partite salvate. Le vedrai con la versione completa.", archMas1:"E 1 altra partita salvata. La vedrai con la versione completa.", tAuto:'Automatico', tDia:'Modalità giorno', tNoche:'Modalità notte', tema:'Modalità giorno o notte', inicioLbl:'Inizio', splashWord:'Segnapunti', toca:'Tocca per iniziare',
+  phClave:'La tua chiave', activar:'Attiva', comprar:'Compra la chiave',
+
+
+
   claveOk:'Chiave attivata', claveMal:'Questa chiave non è corretta. Controlla lettere e numeri.',
   nuevaPartida:'Nuova partita', continuar:'Continua la partita', jugadores:'Giocatori',
   ayudaColor:'Tocca una pedina per cambiarne il colore.',
@@ -644,7 +636,7 @@ let ajuste = (() => {                         // pantalla de inicio
   while (jug.length < 2) jug.push({nombre:'', color:[0,1,2,3,4,5].find(c => !jug.some(j => j.color === c))});
   return {jug, moor: !!(u && u.moor)};
 })();
-let modoPrueba = false, pantalla = 'entrada';
+let pantalla = 'entrada';
 
 /* ---------- tema ---------- */
 const ICO_AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>';
@@ -709,7 +701,6 @@ function ir(id){
   $$('.pantalla, #entrada').forEach(p => p.classList.toggle('activa', p.id === id));
   $('#cab').classList.toggle('oculto', id === 'entrada' || id === 'hoja');
   window.scrollTo(0,0);
-  if (id === 'acceso') pintaAcceso();
   if (id === 'inicio') pintaInicio();
   if (id === 'hoja')   pintaHoja();
   if (id === 'podio')  pintaPodio();
@@ -727,7 +718,6 @@ function aplicaIdioma(){
   $$('[data-i]').forEach(e => { e.textContent = t(e.dataset.i); });
   $$('[data-ia]').forEach(e => e.setAttribute('aria-label', t(e.dataset.ia)));
   $$('.abreLegal').forEach(b => { b.textContent = `${t('avisoLegal')} · ${VERSION}`; });
-  $('#inClave').placeholder = t('phClave');
   $('#btnIdioma').setAttribute('aria-label', t('idioma'));
   $('#btnTema').setAttribute('aria-label', t('tema'));
   pintaMenus();
@@ -735,31 +725,49 @@ function aplicaIdioma(){
   if (pantalla !== 'entrada') ir(pantalla);
 }
 
-/* ---------- licencia ---------- */
-const conLicencia = () => !LICENCIA.activa || !!ls.get(LS.lic, false);
-const enPrueba = () => !conLicencia();
-const pruebasRestantes = () => Math.max(0, LICENCIA.partidasPrueba - ls.get(LS.usadas, 0));
+/* ---------- licencia: versión gratis + versión completa ---------- */
+const licOK = () => !LICENCIA.activa || !!ls.get(LS.lic, false);
 const limpia = s => String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
-function pintaAcceso(){
-  const r = pruebasRestantes();
-  $('#txtPrueba').textContent = r > 0 ? t('pruebaPuedes', r) : t('pruebaAgotada');
-  $('#btnProbar').classList.toggle('oculto', r <= 0);
+const CANDADO = '<i class="candado" aria-hidden="true">🔒</i>';
+/* sin clave, lo que venga de antes (partida a medias, últimos ajustes) se recorta a la versión gratis */
+function limitarGratis(){
+  if (licOK()) return;
+  if (ajuste.jug.length > LICENCIA.maxGratis) ajuste.jug.length = LICENCIA.maxGratis;
+  ajuste.moor = false;
+  if (partida && !partida.terminada && (partida.moor || partida.jug.length > LICENCIA.maxGratis)){
+    partida.moor = false;
+    if (partida.jug.length > LICENCIA.maxGratis) partida.jug.length = LICENCIA.maxGratis;
+    if (partida.act >= partida.jug.length) partida.act = 0;
+    guarda();
+  }
+}
+function abrePro(bloqueado){
+  if (licOK()){ abre(`<h2>${esc(t('pro'))}</h2><p>${esc(t('proOk'))}</p>`); return; }
+  abre(`<h2>${esc(t('pro'))}</h2>
+    ${bloqueado ? `<p class="pro-bloq">${CANDADO} ${esc(t('proBloq'))}</p>` : ''}
+    <p>${esc(t('proD'))}</p>
+    <ul class="pro-lista">${t('proLista').map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+    <button class="boton trigo" id="btnComprar">${esc(t('comprar'))}</button>
+    <p class="pro-sep">${esc(t('tengoClave'))}</p>
+    <input class="campo-clave" id="inClave" placeholder="${esc(t('phClave'))}" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24">
+    <button class="boton" id="btnActivar">${esc(t('activar'))}</button>
+    <p class="pro-msg" id="msgClave"></p>
+    <p class="ayuda">${esc(t('clavePie'))}</p>`);
+  $('#btnComprar').onclick = () => window.open(LICENCIA.compra, '_blank', 'noopener');
+  $('#btnActivar').onclick = activar;
+  $('#inClave').addEventListener('keydown', e => { if (e.key === 'Enter') activar(); });
 }
 function activar(){
   const v = limpia($('#inClave').value);
-  if (v && v === limpia(LICENCIA.clave)){ ls.set(LS.lic, true); $('#inClave').value = ''; fanfarria(); toast(t('claveOk')); ir('inicio'); }
-  else { toast(t('claveMal')); }
+  if (v && v === limpia(LICENCIA.clave)){
+    ls.set(LS.lic, true); cierra(); fanfarria(); confeti(); toast(t('claveOk'));
+    if (pantalla !== 'entrada') ir(pantalla);
+  } else { $('#msgClave').textContent = t('claveMal'); }
 }
-$('#btnActivar').onclick = activar;
-$('#inClave').addEventListener('keydown', e => { if (e.key === 'Enter') activar(); });
-$('#btnComprar').onclick = () => window.open(LICENCIA.compra, '_blank', 'noopener');
-$('#btnProbar').onclick = () => { if (pruebasRestantes() > 0){ modoPrueba = true; clic(); ir('inicio'); } };
+$('#btnPro').onclick = () => { clic(); abrePro(false); };
 
 /* ---------- entrada ---------- */
-function entrar(){
-  melodia();
-  if (enPrueba() && !modoPrueba) ir('acceso'); else ir('inicio');
-}
+function entrar(){ melodia(); ir('inicio'); }
 $('#entrada').addEventListener('click', entrar);
 $('#entrada').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') entrar(); });
 
@@ -769,13 +777,16 @@ function colorLibre(desde){
   return desde;
 }
 function pintaInicio(){
-  const av = $('#avisoPrueba');
-  av.classList.toggle('oculto', !enPrueba());
-  if (enPrueba()) av.textContent = t('modoPrueba', pruebasRestantes());
+  const lic = licOK(), topeMas = !lic && ajuste.jug.length >= LICENCIA.maxGratis;
   $('#btnContinuar').classList.toggle('oculto', !partida);
   $('#numJ').textContent = ajuste.jug.length;
   $('#menosJ').disabled = ajuste.jug.length <= 1; $('#masJ').disabled = ajuste.jug.length >= 6;
+  $('#candMasJ').classList.toggle('oculto', !topeMas);
   $('#swMoor').setAttribute('aria-checked', ajuste.moor);
+  $('#candMoor').innerHTML = lic ? '' : CANDADO;
+  $('#candMoor').previousElementSibling.classList.toggle('bloq-txt', !lic);
+  $('#btnPro').innerHTML = `${lic ? '✓' : '🔓'} ${esc(t('pro'))}`;
+  $('#btnPro').classList.toggle('oculto', !LICENCIA.activa);
   $('#jugLista').innerHTML = ajuste.jug.map((j,i) =>
     `<div class="jug-fila"><button class="ficha" data-c="${i}" style="background:${COLORES[j.color]}" aria-label="${esc(T[idioma].colores[j.color])}"></button>
      <input data-n="${i}" maxlength="14" value="${esc(j.nombre)}" placeholder="${esc(T[idioma].colores[j.color])}" autocomplete="off" enterkeyhint="done"></div>`).join('');
@@ -787,16 +798,13 @@ $('#jugLista').addEventListener('click', e => {
 $('#jugLista').addEventListener('input', e => { const i = e.target.dataset.n; if (i !== undefined) ajuste.jug[+i].nombre = e.target.value.trim(); });
 $('#jugLista').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
 $('#menosJ').onclick = () => { if (ajuste.jug.length > 1){ ajuste.jug.pop(); clic(); pintaInicio(); } };
-$('#masJ').onclick = () => { if (ajuste.jug.length < 6){ ajuste.jug.push({nombre:'', color:colorLibre(ajuste.jug[ajuste.jug.length-1].color)}); clic(); pintaInicio(); } };
-$('#swMoor').onclick = () => { ajuste.moor = !ajuste.moor; clic(); pintaInicio(); };
+$('#masJ').onclick = () => { if (!licOK() && ajuste.jug.length >= LICENCIA.maxGratis){ clic(); abrePro(true); return; } if (ajuste.jug.length < 6){ ajuste.jug.push({nombre:'', color:colorLibre(ajuste.jug[ajuste.jug.length-1].color)}); clic(); pintaInicio(); } };
+$('#swMoor').onclick = () => { if (!licOK()){ clic(); abrePro(true); return; } ajuste.moor = !ajuste.moor; clic(); pintaInicio(); };
 $('#btnContinuar').onclick = () => { clic(); ir(partida && partida.terminada ? 'podio' : 'hoja'); };
 
 let avisoCurso = 0;
 function empezar(jugadores, moor){
-  if (enPrueba()){
-    if (pruebasRestantes() <= 0){ modoPrueba = false; ir('acceso'); return false; }
-    ls.set(LS.usadas, ls.get(LS.usadas, 0) + 1);
-  }
+  if (!licOK() && (moor || jugadores.length > LICENCIA.maxGratis)){ abrePro(true); return false; }
   partida = {id: Date.now(), fecha: new Date().toISOString(), moor: !!moor, act: 0, terminada: false,
              jug: jugadores.map(j => ({nombre: j.nombre, color: j.color, v: VALORES0()}))};
   guarda(); ir('hoja'); return true;
@@ -934,6 +942,7 @@ document.addEventListener('click', e => { if (e.target.closest('.abreLegal')) ab
 $('#ventana').addEventListener('click', e => {
   const v = e.target.closest('[data-ver]'); if (v){ const d = $(`#det-${v.dataset.ver}`); const abierto = d.classList.toggle('oculto'); v.textContent = abierto ? t('ver') : t('ocultar'); return; }
   const x = e.target.closest('[data-borra]'); if (x){ dobleToque(x, () => { ls.set(LS.hist, ls.get(LS.hist, []).filter(p => String(p.id) !== x.dataset.borra)); toast(t('borrada')); abreArchivo(); }); return; }
+  if (e.target.closest('[data-pro]')){ abrePro(true); return; }
   const z = e.target.closest('[data-vacia]'); if (z){ dobleToque(z, () => { ls.set(LS.hist, []); toast(t('vaciado')); abreArchivo(); }); }
 });
 function dobleToque(b, hacer){
@@ -953,7 +962,9 @@ $('#btnTabla').onclick = () => {
 };
 
 function abreArchivo(){
-  const h = ls.get(LS.hist, []);
+  const todas = ls.get(LS.hist, []);
+  const ocultas = licOK() ? 0 : Math.max(0, todas.length - LICENCIA.archivoGratis);
+  const h = todas.slice(0, todas.length - ocultas);
   const fmt = new Intl.DateTimeFormat(idioma, {day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'});
   const cuerpo = h.length ? h.map(R => {
     const o = clasifica(R.jug), gan = o.filter(j => j.pos === 1);
@@ -962,7 +973,9 @@ function abreArchivo(){
       <div class="res">${res}</div>
       <div class="oculto" id="det-${R.id}" style="margin-bottom:8px">${tablaDesglose(R)}</div>
       <div class="acc"><button data-ver="${R.id}">${esc(t('ver'))}</button><button data-borra="${R.id}">${esc(t('borrar'))}</button></div></div>`;
-  }).join('') + `<button class="boton liso" data-vacia>${esc(t('vaciar'))}</button>` : `<p class="ayuda">${esc(t('vacio'))}</p>`;
+  }).join('')
+    + (ocultas ? `<button class="mas-archivo" data-pro>${CANDADO} ${esc(ocultas === 1 ? t('archMas1') : t('archMas').replace('{n}', ocultas))}</button>` : `<button class="boton liso" data-vacia>${esc(t('vaciar'))}</button>`)
+    : `<p class="ayuda">${esc(t('vacio'))}</p>`;
   abre(`<h2>${esc(t('archivo'))}</h2>${cuerpo}`);
 }
 $$('.abreArchivo').forEach(b => b.onclick = () => { clic(); abreArchivo(); });
@@ -987,6 +1000,7 @@ document.addEventListener('dblclick', e => e.preventDefault());
 document.addEventListener('contextmenu', e => { if (!e.target.closest('.legal, input')) e.preventDefault(); });
 
 /* ---------- arranque ---------- */
+limitarGratis();
 aplicaIdioma();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(() => {}));
